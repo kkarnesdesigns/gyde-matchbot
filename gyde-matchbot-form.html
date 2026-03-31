@@ -1,0 +1,1717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gyde Matchbot - Find Your Expert</title>
+</head>
+<body style="background: #f5f5f7; padding: 40px 20px;">
+<!--
+  Gyde Matchbot Form 2.0
+  Multi-step expert matching form for Webflow embed
+
+  INSTALLATION:
+  1. Add this code to a Webflow Embed element or Site Settings > Custom Code > Footer Code
+  2. Update API_BASE_URL and N8N_WEBHOOK_URL constants below
+
+  CONFIGURATION:
+  - API_BASE_URL: Your webflow-experts-router Vercel deployment URL
+  - N8N_WEBHOOK_URL: The n8n webhook endpoint for processing matches
+-->
+
+<style>
+  /* ========================================
+     GYDE MATCHBOT FORM - VARIABLES
+     ======================================== */
+  :root {
+    --gyde-primary: #0040ff;
+    --gyde-primary-hover: #0033cc;
+    --gyde-dark: #000346;
+    --gyde-bg: #f5f5f7;
+    --gyde-white: #ffffff;
+    --gyde-border: #e0e0e0;
+    --gyde-text: #333333;
+    --gyde-text-light: #777777;
+    --gyde-chip-bg: #ffffff;
+    --gyde-chip-border: #d0d0d0;
+    --gyde-chip-selected-bg: #0040ff;
+    --gyde-chip-selected-text: #ffffff;
+    --gyde-catch-all-bg: #f0f0f0;
+    --gyde-catch-all-border: #bbb;
+    --gyde-success: #2ecc71;
+    --gyde-radius: 8px;
+    --gyde-radius-lg: 12px;
+    --gyde-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    --gyde-shadow-lg: 0 4px 24px rgba(0, 0, 0, 0.12);
+    --gyde-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  /* ========================================
+     CONTAINER
+     ======================================== */
+  .gyde-matchbot {
+    font-family: var(--gyde-font);
+    max-width: 800px;
+    margin: 0 auto;
+    color: var(--gyde-text);
+    line-height: 1.5;
+  }
+
+  .gyde-matchbot * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* ========================================
+     PROGRESS BAR
+     ======================================== */
+  .gyde-progress {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 32px;
+    padding: 0 16px;
+  }
+
+  .gyde-progress-step {
+    width: 40px;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--gyde-border);
+    transition: background 0.3s ease;
+  }
+
+  .gyde-progress-step.active {
+    background: var(--gyde-primary);
+  }
+
+  .gyde-progress-step.completed {
+    background: var(--gyde-primary);
+  }
+
+  /* ========================================
+     STEP CONTAINER
+     ======================================== */
+  .gyde-step {
+    display: none;
+    animation: gydeFadeIn 0.3s ease;
+  }
+
+  .gyde-step.active {
+    display: block;
+  }
+
+  @keyframes gydeFadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .gyde-step-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--gyde-dark);
+    text-align: center;
+    margin-bottom: 8px;
+  }
+
+  .gyde-step-subtitle {
+    font-size: 14px;
+    color: var(--gyde-text-light);
+    text-align: center;
+    margin-bottom: 24px;
+  }
+
+  .gyde-section-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gyde-text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+    margin-top: 24px;
+  }
+
+  .gyde-section-label:first-of-type {
+    margin-top: 0;
+  }
+
+  /* ========================================
+     CATEGORY CARDS (Step 1)
+     ======================================== */
+  .gyde-categories {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    padding: 0 16px;
+  }
+
+  .gyde-category-card {
+    background: var(--gyde-white);
+    border: 2px solid var(--gyde-border);
+    border-radius: var(--gyde-radius);
+    padding: 20px 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--gyde-dark);
+  }
+
+  .gyde-category-card:hover {
+    border-color: var(--gyde-primary);
+    box-shadow: var(--gyde-shadow);
+  }
+
+  .gyde-category-card.selected {
+    border-color: var(--gyde-primary);
+    background: var(--gyde-primary);
+    color: var(--gyde-white);
+  }
+
+  /* ========================================
+     CHIPS (Steps 2 & 3)
+     ======================================== */
+  .gyde-chips-container {
+    padding: 0 16px;
+  }
+
+  .gyde-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .gyde-chip {
+    background: var(--gyde-chip-bg);
+    border: 1.5px solid var(--gyde-chip-border);
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 14px;
+    color: var(--gyde-text);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+    white-space: nowrap;
+  }
+
+  .gyde-chip:hover {
+    border-color: var(--gyde-primary);
+    color: var(--gyde-primary);
+  }
+
+  .gyde-chip.selected {
+    background: var(--gyde-chip-selected-bg);
+    border-color: var(--gyde-chip-selected-bg);
+    color: var(--gyde-chip-selected-text);
+  }
+
+  .gyde-catch-all {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 8px;
+    padding: 0 4px;
+  }
+
+  .gyde-catch-all-hint {
+    font-size: 13px;
+    color: var(--gyde-text-light);
+  }
+
+  .gyde-catch-all-btn {
+    background: var(--gyde-catch-all-bg);
+    border: 1.5px solid var(--gyde-catch-all-border);
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 13px;
+    color: var(--gyde-text-light);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+  }
+
+  .gyde-catch-all-btn:hover {
+    border-color: var(--gyde-primary);
+    color: var(--gyde-primary);
+  }
+
+  .gyde-catch-all-btn.selected {
+    background: var(--gyde-dark);
+    border-color: var(--gyde-dark);
+    color: var(--gyde-white);
+  }
+
+  /* ========================================
+     LOCATION (Step 4)
+     ======================================== */
+  .gyde-location {
+    padding: 0 16px;
+  }
+
+  .gyde-location-options {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .gyde-location-btn {
+    background: var(--gyde-white);
+    border: 2px solid var(--gyde-border);
+    border-radius: var(--gyde-radius);
+    padding: 14px 24px;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--gyde-dark);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex: 1;
+    min-width: 120px;
+    text-align: center;
+  }
+
+  .gyde-location-btn:hover {
+    border-color: var(--gyde-primary);
+  }
+
+  .gyde-location-btn.selected {
+    border-color: var(--gyde-primary);
+    background: var(--gyde-primary);
+    color: var(--gyde-white);
+  }
+
+  .gyde-location-detail {
+    display: none;
+    margin-top: 12px;
+  }
+
+  .gyde-location-detail.visible {
+    display: block;
+  }
+
+  .gyde-select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1.5px solid var(--gyde-border);
+    border-radius: var(--gyde-radius);
+    font-size: 15px;
+    color: var(--gyde-text);
+    background: var(--gyde-white);
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23777' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    cursor: pointer;
+  }
+
+  .gyde-select:focus {
+    outline: none;
+    border-color: var(--gyde-primary);
+  }
+
+  /* ========================================
+     CONTACT FORM (Step 5)
+     ======================================== */
+  .gyde-contact {
+    padding: 0 16px;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  .gyde-form-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .gyde-input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1.5px solid var(--gyde-border);
+    border-radius: var(--gyde-radius);
+    font-size: 15px;
+    color: var(--gyde-text);
+    background: var(--gyde-white);
+    transition: border-color 0.2s ease;
+  }
+
+  .gyde-input:focus {
+    outline: none;
+    border-color: var(--gyde-primary);
+  }
+
+  .gyde-input::placeholder {
+    color: #bbb;
+  }
+
+  .gyde-input.error {
+    border-color: #e74c3c;
+  }
+
+  .gyde-spam-note {
+    text-align: center;
+    font-size: 13px;
+    color: var(--gyde-text-light);
+    margin-top: 8px;
+    font-style: italic;
+  }
+
+  /* ========================================
+     NAVIGATION BUTTONS
+     ======================================== */
+  .gyde-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 32px;
+    padding: 0 16px;
+  }
+
+  .gyde-btn {
+    padding: 14px 32px;
+    border-radius: var(--gyde-radius);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+  }
+
+  .gyde-btn-back {
+    background: transparent;
+    color: var(--gyde-text-light);
+    padding: 14px 16px;
+  }
+
+  .gyde-btn-back:hover {
+    color: var(--gyde-dark);
+  }
+
+  .gyde-btn-next {
+    background: var(--gyde-primary);
+    color: var(--gyde-white);
+    margin-left: auto;
+  }
+
+  .gyde-btn-next:hover {
+    background: var(--gyde-primary-hover);
+  }
+
+  .gyde-btn-next:disabled {
+    background: var(--gyde-border);
+    cursor: not-allowed;
+  }
+
+  .gyde-btn-submit {
+    background: var(--gyde-primary);
+    color: var(--gyde-white);
+    width: 100%;
+    padding: 16px;
+    font-size: 17px;
+    margin-top: 20px;
+  }
+
+  .gyde-btn-submit:hover {
+    background: var(--gyde-primary-hover);
+  }
+
+  .gyde-btn-submit:disabled {
+    background: var(--gyde-border);
+    cursor: not-allowed;
+  }
+
+  /* ========================================
+     LOADING STATE
+     ======================================== */
+  .gyde-loading {
+    text-align: center;
+    padding: 60px 16px;
+  }
+
+  .gyde-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--gyde-border);
+    border-top-color: var(--gyde-primary);
+    border-radius: 50%;
+    animation: gydeSpin 0.8s linear infinite;
+    margin: 0 auto 16px;
+  }
+
+  @keyframes gydeSpin {
+    to { transform: rotate(360deg); }
+  }
+
+  .gyde-loading-text {
+    font-size: 16px;
+    color: var(--gyde-text-light);
+  }
+
+  /* ========================================
+     RESULTS
+     ======================================== */
+  .gyde-results {
+    padding: 0 16px;
+  }
+
+  .gyde-results-header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .gyde-results-header h2 {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--gyde-dark);
+    margin-bottom: 8px;
+  }
+
+  .gyde-results-header p {
+    font-size: 16px;
+    color: var(--gyde-text-light);
+  }
+
+  .gyde-results-section-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gyde-text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--gyde-border);
+  }
+
+  /* Profile Cards */
+  .gyde-profile-card {
+    background: var(--gyde-white);
+    border: 1px solid var(--gyde-border);
+    border-radius: var(--gyde-radius-lg);
+    padding: 24px;
+    margin-bottom: 16px;
+    box-shadow: var(--gyde-shadow);
+  }
+
+  .gyde-profile-top {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .gyde-profile-photo {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: var(--gyde-bg);
+  }
+
+  .gyde-profile-initials {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: var(--gyde-primary);
+    color: var(--gyde-white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: 700;
+  }
+
+  .gyde-profile-info {
+    flex: 1;
+  }
+
+  .gyde-profile-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--gyde-dark);
+    margin-bottom: 2px;
+  }
+
+  .gyde-profile-name a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .gyde-profile-name a:hover {
+    color: var(--gyde-primary);
+  }
+
+  .gyde-profile-location {
+    font-size: 13px;
+    color: var(--gyde-text-light);
+    margin-bottom: 4px;
+  }
+
+  .gyde-profile-title {
+    font-size: 14px;
+    color: var(--gyde-text);
+  }
+
+  .gyde-profile-body {
+    display: flex;
+    gap: 24px;
+  }
+
+  .gyde-profile-skills {
+    flex: 0 0 200px;
+  }
+
+  .gyde-profile-skills-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--gyde-text-light);
+    margin-bottom: 6px;
+  }
+
+  .gyde-profile-skills-list {
+    list-style: none;
+    font-size: 13px;
+    color: var(--gyde-text);
+  }
+
+  .gyde-profile-skills-list li {
+    padding: 2px 0;
+  }
+
+  .gyde-profile-about {
+    flex: 1;
+  }
+
+  .gyde-profile-about-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--gyde-text-light);
+    margin-bottom: 6px;
+  }
+
+  .gyde-profile-about-text {
+    font-size: 13px;
+    color: var(--gyde-text);
+    line-height: 1.6;
+  }
+
+  .gyde-profile-ai-summary {
+    margin-top: 12px;
+    padding: 12px 16px;
+    background: #f0f4ff;
+    border-radius: var(--gyde-radius);
+    border-left: 3px solid var(--gyde-primary);
+  }
+
+  .gyde-profile-ai-summary p {
+    font-size: 13px;
+    color: var(--gyde-dark);
+    line-height: 1.5;
+  }
+
+  .gyde-profile-link {
+    display: inline-block;
+    margin-top: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--gyde-primary);
+    text-decoration: none;
+  }
+
+  .gyde-profile-link:hover {
+    text-decoration: underline;
+  }
+
+  /* View More */
+  .gyde-view-more {
+    text-align: center;
+    margin: 24px 0;
+  }
+
+  .gyde-view-more-btn {
+    background: none;
+    border: none;
+    color: var(--gyde-primary);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 8px 16px;
+  }
+
+  .gyde-view-more-btn:hover {
+    color: var(--gyde-primary-hover);
+  }
+
+  .gyde-additional-results {
+    display: none;
+  }
+
+  .gyde-additional-results.visible {
+    display: block;
+  }
+
+  /* Start Over */
+  .gyde-start-over {
+    text-align: center;
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--gyde-border);
+  }
+
+  .gyde-start-over-btn {
+    background: transparent;
+    border: 2px solid var(--gyde-border);
+    border-radius: var(--gyde-radius);
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--gyde-text-light);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .gyde-start-over-btn:hover {
+    border-color: var(--gyde-dark);
+    color: var(--gyde-dark);
+  }
+
+  /* ========================================
+     ERROR STATE
+     ======================================== */
+  .gyde-error {
+    text-align: center;
+    padding: 40px 16px;
+    color: #e74c3c;
+  }
+
+  .gyde-error p {
+    margin-bottom: 16px;
+  }
+
+  /* ========================================
+     RESPONSIVE
+     ======================================== */
+  @media (max-width: 600px) {
+    .gyde-categories {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .gyde-step-title {
+      font-size: 20px;
+    }
+
+    .gyde-profile-body {
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .gyde-profile-skills {
+      flex: none;
+    }
+
+    .gyde-form-row {
+      flex-direction: column;
+    }
+
+    .gyde-location-options {
+      flex-direction: column;
+    }
+  }
+</style>
+
+<div class="gyde-matchbot" id="gydeMatchbot">
+
+  <!-- Progress Bar -->
+  <div class="gyde-progress" id="gydeProgress">
+    <div class="gyde-progress-step active" data-step="0"></div>
+    <div class="gyde-progress-step" data-step="1"></div>
+    <div class="gyde-progress-step" data-step="2"></div>
+    <div class="gyde-progress-step" data-step="3"></div>
+    <div class="gyde-progress-step" data-step="4"></div>
+  </div>
+
+  <!-- Step 0: Loading -->
+  <div class="gyde-step" id="gydeStepLoading">
+    <div class="gyde-loading">
+      <div class="gyde-spinner"></div>
+      <div class="gyde-loading-text">Loading options...</div>
+    </div>
+  </div>
+
+  <!-- Step 1: Category Selection -->
+  <div class="gyde-step" id="gydeStep0">
+    <h2 class="gyde-step-title">What type of expert are you looking for?</h2>
+    <p class="gyde-step-subtitle">Select a category to get started</p>
+    <div class="gyde-categories" id="gydeCategoryList"></div>
+  </div>
+
+  <!-- Step 2: Skills Selection -->
+  <div class="gyde-step" id="gydeStep1">
+    <h2 class="gyde-step-title">What are you looking for more specifically?</h2>
+    <p class="gyde-step-subtitle">Select all that apply, or click "Not sure" to see all experts in this category</p>
+    <div class="gyde-chips-container">
+      <div class="gyde-section-label">Services</div>
+      <div class="gyde-chips" id="gydeSkillChips"></div>
+      <div class="gyde-catch-all">
+        <span class="gyde-catch-all-hint">Select all that apply, or click</span>
+        <button class="gyde-catch-all-btn" id="gydeSkillCatchAll" onclick="GydeMatchbot.toggleCatchAll('skills')">Not sure or open to suggestions</button>
+      </div>
+    </div>
+    <div class="gyde-nav">
+      <button class="gyde-btn gyde-btn-back" onclick="GydeMatchbot.prevStep()">&larr; Back</button>
+      <button class="gyde-btn gyde-btn-next" id="gydeSkillNext" onclick="GydeMatchbot.nextStep()">Next &rarr;</button>
+    </div>
+  </div>
+
+  <!-- Step 3: Certifications/Platforms Selection -->
+  <div class="gyde-step" id="gydeStep2">
+    <h2 class="gyde-step-title">Any platform or tool preferences?</h2>
+    <p class="gyde-step-subtitle">Select platforms your expert should know</p>
+    <div class="gyde-chips-container">
+      <div class="gyde-section-label">Platform Focus</div>
+      <div class="gyde-chips" id="gydeCertChips"></div>
+      <div class="gyde-catch-all">
+        <span class="gyde-catch-all-hint">Select all that apply, or click</span>
+        <button class="gyde-catch-all-btn" id="gydeCertCatchAll" onclick="GydeMatchbot.toggleCatchAll('certifications')">Not sure or open to suggestions</button>
+      </div>
+    </div>
+    <div class="gyde-nav">
+      <button class="gyde-btn gyde-btn-back" onclick="GydeMatchbot.prevStep()">&larr; Back</button>
+      <button class="gyde-btn gyde-btn-next" id="gydeCertNext" onclick="GydeMatchbot.nextStep()">Next &rarr;</button>
+    </div>
+  </div>
+
+  <!-- Step 4: Location -->
+  <div class="gyde-step" id="gydeStep3">
+    <h2 class="gyde-step-title">Do you need someone in a certain location, or is remote okay?</h2>
+    <div class="gyde-location">
+      <div class="gyde-location-options">
+        <button class="gyde-location-btn" data-location="remote" onclick="GydeMatchbot.selectLocation('remote')">Remote</button>
+        <button class="gyde-location-btn" data-location="state" onclick="GydeMatchbot.selectLocation('state')">State &#9662;</button>
+        <button class="gyde-location-btn" data-location="region" onclick="GydeMatchbot.selectLocation('region')">Region &#9662;</button>
+      </div>
+
+      <div class="gyde-location-detail" id="gydeStateSelect">
+        <select class="gyde-select" id="gydeStateDropdown" onchange="GydeMatchbot.onStateChange()">
+          <option value="">Select a state...</option>
+        </select>
+      </div>
+
+      <div class="gyde-location-detail" id="gydeRegionSelect">
+        <select class="gyde-select" id="gydeRegionDropdown" onchange="GydeMatchbot.onRegionChange()">
+          <option value="">Select a region...</option>
+          <option value="northeast">Northeast</option>
+          <option value="southeast">Southeast</option>
+          <option value="midwest">Midwest</option>
+          <option value="southwest">Southwest</option>
+          <option value="west">West</option>
+        </select>
+      </div>
+    </div>
+    <div class="gyde-nav">
+      <button class="gyde-btn gyde-btn-back" onclick="GydeMatchbot.prevStep()">&larr; Back</button>
+      <button class="gyde-btn gyde-btn-next" id="gydeLocationNext" onclick="GydeMatchbot.nextStep()" disabled>Next &rarr;</button>
+    </div>
+  </div>
+
+  <!-- Step 5: Contact Info -->
+  <div class="gyde-step" id="gydeStep4">
+    <h2 class="gyde-step-title">Almost there! How can we reach you?</h2>
+    <div class="gyde-contact">
+      <div class="gyde-form-row">
+        <input type="text" class="gyde-input" id="gydeFirstName" placeholder="First Name" />
+        <input type="text" class="gyde-input" id="gydeLastName" placeholder="Last Name" />
+      </div>
+      <input type="email" class="gyde-input" id="gydeEmail" placeholder="Your Email Address" style="margin-bottom: 0;" />
+      <p class="gyde-spam-note">(You won't receive any spam!)</p>
+      <button class="gyde-btn gyde-btn-submit" id="gydeSubmitBtn" onclick="GydeMatchbot.submit()" disabled>Submit</button>
+    </div>
+    <div class="gyde-nav" style="margin-top: 16px;">
+      <button class="gyde-btn gyde-btn-back" onclick="GydeMatchbot.prevStep()">&larr; Back</button>
+    </div>
+  </div>
+
+  <!-- Submitting State -->
+  <div class="gyde-step" id="gydeStepSubmitting">
+    <div class="gyde-loading">
+      <div class="gyde-spinner"></div>
+      <div class="gyde-loading-text">Finding your perfect matches...</div>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div class="gyde-step" id="gydeStepResults">
+    <div class="gyde-results">
+      <div class="gyde-results-header">
+        <h2>We've got you covered!</h2>
+        <p>Check out the profiles of the professionals below</p>
+      </div>
+
+      <div class="gyde-results-section-label">Top Matches</div>
+      <div id="gydeTopMatches"></div>
+
+      <div class="gyde-view-more" id="gydeViewMoreContainer" style="display: none;">
+        <button class="gyde-view-more-btn" onclick="GydeMatchbot.showMore()">View More</button>
+      </div>
+
+      <div class="gyde-additional-results" id="gydeAdditionalResults">
+        <div class="gyde-results-section-label">Additional Matches</div>
+        <div id="gydeMoreMatches"></div>
+      </div>
+
+      <div class="gyde-start-over">
+        <button class="gyde-start-over-btn" onclick="GydeMatchbot.reset()">Start a New Search</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div class="gyde-step" id="gydeStepError">
+    <div class="gyde-error">
+      <p>Something went wrong. Please try again.</p>
+      <button class="gyde-btn gyde-btn-next" onclick="GydeMatchbot.reset()">Start Over</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  // ========================================
+  // CONFIGURATION - UPDATE THESE
+  // ========================================
+  const API_BASE_URL = 'https://webflow-experts-router.vercel.app';
+  const N8N_WEBHOOK_URL = 'https://joingyde.app.n8n.cloud/webhook-test/1c95ea93-5550-402a-b5c0-771f02a6b4ac';
+
+  // Region-to-states mapping
+  const REGIONS = {
+    northeast: ['Connecticut', 'Delaware', 'Maine', 'Maryland', 'Massachusetts', 'New Hampshire', 'New Jersey', 'New York', 'Pennsylvania', 'Rhode Island', 'Vermont'],
+    southeast: ['Alabama', 'Arkansas', 'Florida', 'Georgia', 'Kentucky', 'Louisiana', 'Mississippi', 'North Carolina', 'South Carolina', 'Tennessee', 'Virginia', 'West Virginia'],
+    midwest: ['Illinois', 'Indiana', 'Iowa', 'Kansas', 'Michigan', 'Minnesota', 'Missouri', 'Nebraska', 'North Dakota', 'Ohio', 'South Dakota', 'Wisconsin'],
+    southwest: ['Arizona', 'New Mexico', 'Oklahoma', 'Texas'],
+    west: ['Alaska', 'California', 'Colorado', 'Hawaii', 'Idaho', 'Montana', 'Nevada', 'Oregon', 'Utah', 'Washington', 'Wyoming']
+  };
+
+  // ========================================
+  // STATE
+  // ========================================
+  const state = {
+    currentStep: -1, // -1 = loading
+    formData: null,  // CMS data from API
+    selectedCategory: null,
+    selectedSkills: [],
+    selectedCerts: [],
+    skillsCatchAll: false,
+    certsCatchAll: false,
+    locationType: null,    // 'remote' | 'state' | 'region'
+    locationValue: null,
+    locationStateId: null,
+    regionStates: [],      // state IDs for selected region
+    results: null
+  };
+
+  // ========================================
+  // INITIALIZATION
+  // ========================================
+  async function init() {
+    showStep(-1); // show loading
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/form-options`);
+      if (!response.ok) throw new Error('Failed to load form options');
+      state.formData = await response.json();
+    } catch (err) {
+      console.warn('Gyde Matchbot: API unavailable, using mock data for development.', err.message);
+      state.formData = getMockFormData();
+    }
+
+    renderCategories();
+    showStep(0);
+  }
+
+  /**
+   * Mock CMS data for local development / testing.
+   * Replace with live API data in production.
+   */
+  function getMockFormData() {
+    const catWebDesign = 'cat_web-design';
+    const catGraphicDesign = 'cat_graphic-design';
+    const catSocialMedia = 'cat_social-media';
+    const catSEO = 'cat_seo';
+    const catCopywriting = 'cat_copywriting';
+    const catVideoPhoto = 'cat_video-photo';
+    const catPaidMedia = 'cat_paid-media';
+    const catEmailMarketing = 'cat_email-marketing';
+
+    return {
+      categories: [
+        { id: catWebDesign, name: 'Web Design', slug: 'web-design' },
+        { id: catGraphicDesign, name: 'Graphic Design', slug: 'graphic-design' },
+        { id: catSocialMedia, name: 'Social Media', slug: 'social-media' },
+        { id: catSEO, name: 'SEO', slug: 'seo' },
+        { id: catCopywriting, name: 'Copywriting', slug: 'copywriting' },
+        { id: catVideoPhoto, name: 'Video & Photography', slug: 'video-photography' },
+        { id: catPaidMedia, name: 'Paid Media', slug: 'paid-media' },
+        { id: catEmailMarketing, name: 'Email Marketing', slug: 'email-marketing' }
+      ],
+      skills: {
+        [catWebDesign]: [
+          { id: 'sk_1', name: 'A.I. & Machine Learning', slug: 'ai-ml' },
+          { id: 'sk_2', name: 'App Design & Development', slug: 'app-design' },
+          { id: 'sk_3', name: 'Back-End Design & Development', slug: 'back-end' },
+          { id: 'sk_4', name: 'Content Management Systems (CMS)', slug: 'cms' },
+          { id: 'sk_5', name: 'Custom Websites', slug: 'custom-websites' },
+          { id: 'sk_6', name: 'E-Commerce / Online Store Design', slug: 'ecommerce' },
+          { id: 'sk_7', name: 'Front-End Design & Development', slug: 'front-end' },
+          { id: 'sk_8', name: 'Interface Design', slug: 'interface-design' },
+          { id: 'sk_9', name: 'Landing Page Creation & Design', slug: 'landing-page' },
+          { id: 'sk_10', name: 'Migrations & Integrations', slug: 'migrations' },
+          { id: 'sk_11', name: 'Product Design', slug: 'product-design' },
+          { id: 'sk_12', name: 'Product Page Design', slug: 'product-page' },
+          { id: 'sk_13', name: 'UI/UX Design & Development', slug: 'ui-ux' },
+          { id: 'sk_14', name: 'Web Analytics', slug: 'web-analytics' },
+          { id: 'sk_15', name: 'White Papers', slug: 'white-papers' }
+        ],
+        [catGraphicDesign]: [
+          { id: 'sk_20', name: 'Brand Design', slug: 'brand-design' },
+          { id: 'sk_21', name: 'Brochure & Flyer Design', slug: 'brochure' },
+          { id: 'sk_22', name: 'Illustrations', slug: 'illustrations' },
+          { id: 'sk_23', name: 'Infographics', slug: 'infographics' },
+          { id: 'sk_24', name: 'Logo Design & Creation', slug: 'logo-design' },
+          { id: 'sk_25', name: 'Packaging Design', slug: 'packaging' },
+          { id: 'sk_26', name: 'Pitch Deck Design', slug: 'pitch-deck' },
+          { id: 'sk_27', name: 'Posters & Signs', slug: 'posters' },
+          { id: 'sk_28', name: 'Presentation Design', slug: 'presentations' },
+          { id: 'sk_29', name: 'Print Material', slug: 'print' },
+          { id: 'sk_30', name: 'Trade Show Displays', slug: 'trade-show' }
+        ],
+        [catSocialMedia]: [
+          { id: 'sk_40', name: 'Community Building/Management', slug: 'community' },
+          { id: 'sk_41', name: 'Content Creation', slug: 'content-creation' },
+          { id: 'sk_42', name: 'Content Planning & Strategy', slug: 'content-strategy' },
+          { id: 'sk_43', name: 'Influencer Marketing', slug: 'influencer' },
+          { id: 'sk_44', name: 'Organic Social Media', slug: 'organic-social' },
+          { id: 'sk_45', name: 'Paid Social Media', slug: 'paid-social' },
+          { id: 'sk_46', name: 'Short Videos / Reels', slug: 'short-videos' },
+          { id: 'sk_47', name: 'Social Media Management', slug: 'social-management' }
+        ],
+        [catSEO]: [
+          { id: 'sk_50', name: 'Enterprise SEO', slug: 'enterprise-seo' },
+          { id: 'sk_51', name: 'Link Building', slug: 'link-building' },
+          { id: 'sk_52', name: 'Local SEO', slug: 'local-seo' },
+          { id: 'sk_53', name: 'Search Engine Optimization (SEO)', slug: 'seo' },
+          { id: 'sk_54', name: 'Technical SEO', slug: 'technical-seo' },
+          { id: 'sk_55', name: 'Google Analytics', slug: 'google-analytics' }
+        ],
+        [catCopywriting]: [
+          { id: 'sk_60', name: 'Advertising Copywriting', slug: 'ad-copy' },
+          { id: 'sk_61', name: 'B2B Copywriting', slug: 'b2b-copy' },
+          { id: 'sk_62', name: 'Blogs & Articles', slug: 'blogs' },
+          { id: 'sk_63', name: 'Brand Writing', slug: 'brand-writing' },
+          { id: 'sk_64', name: 'Email Writing', slug: 'email-writing' },
+          { id: 'sk_65', name: 'Landing Page Copy', slug: 'landing-page-copy' },
+          { id: 'sk_66', name: 'SEO Writing', slug: 'seo-writing' },
+          { id: 'sk_67', name: 'Script Writing', slug: 'script-writing' }
+        ],
+        [catVideoPhoto]: [
+          { id: 'sk_70', name: 'Animation', slug: 'animation' },
+          { id: 'sk_71', name: 'Explainer Videos', slug: 'explainer-videos' },
+          { id: 'sk_72', name: 'Motion Graphics & Design', slug: 'motion-graphics' },
+          { id: 'sk_73', name: 'Photography', slug: 'photography' },
+          { id: 'sk_74', name: 'Product Photography', slug: 'product-photography' },
+          { id: 'sk_75', name: 'Studio Photography', slug: 'studio-photography' },
+          { id: 'sk_76', name: 'Video Editing', slug: 'video-editing' },
+          { id: 'sk_77', name: 'Video Production', slug: 'video-production' }
+        ],
+        [catPaidMedia]: [
+          { id: 'sk_80', name: 'Display & Banner Ads', slug: 'display-ads' },
+          { id: 'sk_81', name: 'Media Buying & Planning', slug: 'media-buying' },
+          { id: 'sk_82', name: 'Paid Media Strategy & Execution', slug: 'paid-media-strategy' },
+          { id: 'sk_83', name: 'Pay Per Click (PPC)', slug: 'ppc' },
+          { id: 'sk_84', name: 'Performance Marketing', slug: 'performance' },
+          { id: 'sk_85', name: 'Search Engine Marketing (SEM)', slug: 'sem' }
+        ],
+        [catEmailMarketing]: [
+          { id: 'sk_90', name: 'Email Marketing & Campaigns', slug: 'email-campaigns' },
+          { id: 'sk_91', name: 'Lifecycle Marketing', slug: 'lifecycle' },
+          { id: 'sk_92', name: 'Newsletters', slug: 'newsletters' },
+          { id: 'sk_93', name: 'Marketing Campaign Creation', slug: 'campaign-creation' }
+        ]
+      },
+      certifications: {
+        [catWebDesign]: [
+          { id: 'cert_1', name: 'Webflow', slug: 'webflow' },
+          { id: 'cert_2', name: 'WordPress', slug: 'wordpress' },
+          { id: 'cert_3', name: 'Shopify', slug: 'shopify' },
+          { id: 'cert_4', name: 'Figma', slug: 'figma' },
+          { id: 'cert_5', name: 'Squarespace', slug: 'squarespace' },
+          { id: 'cert_6', name: 'Wix', slug: 'wix' },
+          { id: 'cert_7', name: 'HubSpot CMS', slug: 'hubspot-cms' },
+          { id: 'cert_8', name: 'React', slug: 'react' }
+        ],
+        [catGraphicDesign]: [
+          { id: 'cert_10', name: 'Adobe Creative Cloud', slug: 'adobe-cc' },
+          { id: 'cert_11', name: 'Adobe Photoshop', slug: 'photoshop' },
+          { id: 'cert_12', name: 'Adobe Illustrator', slug: 'illustrator' },
+          { id: 'cert_13', name: 'Figma', slug: 'figma' },
+          { id: 'cert_14', name: 'Canva', slug: 'canva' },
+          { id: 'cert_15', name: 'InDesign', slug: 'indesign' }
+        ],
+        [catSocialMedia]: [
+          { id: 'cert_20', name: 'Instagram', slug: 'instagram' },
+          { id: 'cert_21', name: 'TikTok', slug: 'tiktok' },
+          { id: 'cert_22', name: 'LinkedIn', slug: 'linkedin' },
+          { id: 'cert_23', name: 'Facebook', slug: 'facebook' },
+          { id: 'cert_24', name: 'Twitter (X)', slug: 'twitter' },
+          { id: 'cert_25', name: 'YouTube', slug: 'youtube' },
+          { id: 'cert_26', name: 'Pinterest', slug: 'pinterest' }
+        ],
+        [catSEO]: [
+          { id: 'cert_30', name: 'Google Analytics', slug: 'google-analytics' },
+          { id: 'cert_31', name: 'Google Search Console', slug: 'search-console' },
+          { id: 'cert_32', name: 'SEMrush', slug: 'semrush' },
+          { id: 'cert_33', name: 'Ahrefs', slug: 'ahrefs' },
+          { id: 'cert_34', name: 'Moz', slug: 'moz' }
+        ],
+        [catPaidMedia]: [
+          { id: 'cert_40', name: 'Google Ads', slug: 'google-ads' },
+          { id: 'cert_41', name: 'Meta Ads', slug: 'meta-ads' },
+          { id: 'cert_42', name: 'LinkedIn Ads', slug: 'linkedin-ads' },
+          { id: 'cert_43', name: 'TikTok Ads', slug: 'tiktok-ads' },
+          { id: 'cert_44', name: 'Microsoft Ads', slug: 'microsoft-ads' }
+        ],
+        [catEmailMarketing]: [
+          { id: 'cert_50', name: 'Mailchimp', slug: 'mailchimp' },
+          { id: 'cert_51', name: 'Klaviyo', slug: 'klaviyo' },
+          { id: 'cert_52', name: 'HubSpot', slug: 'hubspot' },
+          { id: 'cert_53', name: 'ActiveCampaign', slug: 'activecampaign' },
+          { id: 'cert_54', name: 'ConvertKit', slug: 'convertkit' }
+        ]
+      },
+      states: [
+        { id: 'st_al', name: 'Alabama', slug: 'alabama' },
+        { id: 'st_ak', name: 'Alaska', slug: 'alaska' },
+        { id: 'st_az', name: 'Arizona', slug: 'arizona' },
+        { id: 'st_ar', name: 'Arkansas', slug: 'arkansas' },
+        { id: 'st_ca', name: 'California', slug: 'california' },
+        { id: 'st_co', name: 'Colorado', slug: 'colorado' },
+        { id: 'st_ct', name: 'Connecticut', slug: 'connecticut' },
+        { id: 'st_de', name: 'Delaware', slug: 'delaware' },
+        { id: 'st_dc', name: 'District of Columbia', slug: 'dc' },
+        { id: 'st_fl', name: 'Florida', slug: 'florida' },
+        { id: 'st_ga', name: 'Georgia', slug: 'georgia' },
+        { id: 'st_hi', name: 'Hawaii', slug: 'hawaii' },
+        { id: 'st_id', name: 'Idaho', slug: 'idaho' },
+        { id: 'st_il', name: 'Illinois', slug: 'illinois' },
+        { id: 'st_in', name: 'Indiana', slug: 'indiana' },
+        { id: 'st_ia', name: 'Iowa', slug: 'iowa' },
+        { id: 'st_ks', name: 'Kansas', slug: 'kansas' },
+        { id: 'st_ky', name: 'Kentucky', slug: 'kentucky' },
+        { id: 'st_la', name: 'Louisiana', slug: 'louisiana' },
+        { id: 'st_me', name: 'Maine', slug: 'maine' },
+        { id: 'st_md', name: 'Maryland', slug: 'maryland' },
+        { id: 'st_ma', name: 'Massachusetts', slug: 'massachusetts' },
+        { id: 'st_mi', name: 'Michigan', slug: 'michigan' },
+        { id: 'st_mn', name: 'Minnesota', slug: 'minnesota' },
+        { id: 'st_ms', name: 'Mississippi', slug: 'mississippi' },
+        { id: 'st_mo', name: 'Missouri', slug: 'missouri' },
+        { id: 'st_mt', name: 'Montana', slug: 'montana' },
+        { id: 'st_ne', name: 'Nebraska', slug: 'nebraska' },
+        { id: 'st_nv', name: 'Nevada', slug: 'nevada' },
+        { id: 'st_nh', name: 'New Hampshire', slug: 'new-hampshire' },
+        { id: 'st_nj', name: 'New Jersey', slug: 'new-jersey' },
+        { id: 'st_nm', name: 'New Mexico', slug: 'new-mexico' },
+        { id: 'st_ny', name: 'New York', slug: 'new-york' },
+        { id: 'st_nc', name: 'North Carolina', slug: 'north-carolina' },
+        { id: 'st_nd', name: 'North Dakota', slug: 'north-dakota' },
+        { id: 'st_oh', name: 'Ohio', slug: 'ohio' },
+        { id: 'st_ok', name: 'Oklahoma', slug: 'oklahoma' },
+        { id: 'st_or', name: 'Oregon', slug: 'oregon' },
+        { id: 'st_pa', name: 'Pennsylvania', slug: 'pennsylvania' },
+        { id: 'st_ri', name: 'Rhode Island', slug: 'rhode-island' },
+        { id: 'st_sc', name: 'South Carolina', slug: 'south-carolina' },
+        { id: 'st_sd', name: 'South Dakota', slug: 'south-dakota' },
+        { id: 'st_tn', name: 'Tennessee', slug: 'tennessee' },
+        { id: 'st_tx', name: 'Texas', slug: 'texas' },
+        { id: 'st_ut', name: 'Utah', slug: 'utah' },
+        { id: 'st_vt', name: 'Vermont', slug: 'vermont' },
+        { id: 'st_va', name: 'Virginia', slug: 'virginia' },
+        { id: 'st_wa', name: 'Washington', slug: 'washington' },
+        { id: 'st_wv', name: 'West Virginia', slug: 'west-virginia' },
+        { id: 'st_wi', name: 'Wisconsin', slug: 'wisconsin' },
+        { id: 'st_wy', name: 'Wyoming', slug: 'wyoming' }
+      ]
+    };
+  }
+
+  // ========================================
+  // STEP NAVIGATION
+  // ========================================
+  function showStep(stepIndex) {
+    state.currentStep = stepIndex;
+
+    // Hide all steps
+    document.querySelectorAll('.gyde-step').forEach(el => el.classList.remove('active'));
+
+    // Show the right step
+    if (stepIndex === -1) {
+      document.getElementById('gydeStepLoading').classList.add('active');
+    } else if (stepIndex === 'submitting') {
+      document.getElementById('gydeStepSubmitting').classList.add('active');
+    } else if (stepIndex === 'results') {
+      document.getElementById('gydeStepResults').classList.add('active');
+      document.getElementById('gydeProgress').style.display = 'none';
+    } else if (stepIndex === 'error') {
+      document.getElementById('gydeStepError').classList.add('active');
+    } else {
+      document.getElementById('gydeStep' + stepIndex).classList.add('active');
+    }
+
+    // Update progress bar
+    if (typeof stepIndex === 'number' && stepIndex >= 0) {
+      document.getElementById('gydeProgress').style.display = 'flex';
+      document.querySelectorAll('.gyde-progress-step').forEach((el, i) => {
+        el.classList.remove('active', 'completed');
+        if (i < stepIndex) el.classList.add('completed');
+        if (i === stepIndex) el.classList.add('active');
+      });
+    }
+  }
+
+  function nextStep() {
+    if (state.currentStep < 4) {
+      showStep(state.currentStep + 1);
+    }
+  }
+
+  function prevStep() {
+    if (state.currentStep > 0) {
+      showStep(state.currentStep - 1);
+    }
+  }
+
+  // ========================================
+  // STEP 1: CATEGORIES
+  // ========================================
+  function renderCategories() {
+    const container = document.getElementById('gydeCategoryList');
+    container.innerHTML = '';
+
+    state.formData.categories.forEach(cat => {
+      const card = document.createElement('div');
+      card.className = 'gyde-category-card';
+      card.textContent = cat.name;
+      card.onclick = () => selectCategory(cat);
+      container.appendChild(card);
+    });
+  }
+
+  function selectCategory(category) {
+    state.selectedCategory = category;
+    state.selectedSkills = [];
+    state.selectedCerts = [];
+    state.skillsCatchAll = false;
+    state.certsCatchAll = false;
+
+    // Highlight selected card
+    document.querySelectorAll('.gyde-category-card').forEach(el => {
+      el.classList.toggle('selected', el.textContent === category.name);
+    });
+
+    // Render skills and certs for this category
+    renderSkillChips(category.id);
+    renderCertChips(category.id);
+
+    // Auto-advance to next step
+    setTimeout(() => showStep(1), 200);
+  }
+
+  // ========================================
+  // STEP 2: SKILLS
+  // ========================================
+  function renderSkillChips(categoryId) {
+    const container = document.getElementById('gydeSkillChips');
+    container.innerHTML = '';
+
+    const skills = state.formData.skills[categoryId] || [];
+
+    if (skills.length === 0) {
+      container.innerHTML = '<p style="color: var(--gyde-text-light); font-size: 14px;">No specific skills listed for this category.</p>';
+      state.skillsCatchAll = true;
+      updateCatchAllBtn('skills');
+      return;
+    }
+
+    skills.forEach(skill => {
+      const chip = document.createElement('span');
+      chip.className = 'gyde-chip';
+      chip.textContent = skill.name;
+      chip.dataset.id = skill.id;
+      chip.onclick = () => toggleSkill(skill, chip);
+      container.appendChild(chip);
+    });
+
+    updateCatchAllBtn('skills');
+  }
+
+  function toggleSkill(skill, chipEl) {
+    if (state.skillsCatchAll) {
+      state.skillsCatchAll = false;
+      updateCatchAllBtn('skills');
+    }
+
+    const idx = state.selectedSkills.findIndex(s => s.id === skill.id);
+    if (idx > -1) {
+      state.selectedSkills.splice(idx, 1);
+      chipEl.classList.remove('selected');
+    } else {
+      state.selectedSkills.push(skill);
+      chipEl.classList.add('selected');
+    }
+  }
+
+  // ========================================
+  // STEP 3: CERTIFICATIONS
+  // ========================================
+  function renderCertChips(categoryId) {
+    const container = document.getElementById('gydeCertChips');
+    container.innerHTML = '';
+
+    const certs = state.formData.certifications[categoryId] || [];
+
+    if (certs.length === 0) {
+      container.innerHTML = '<p style="color: var(--gyde-text-light); font-size: 14px;">No specific platforms listed for this category.</p>';
+      state.certsCatchAll = true;
+      updateCatchAllBtn('certifications');
+      return;
+    }
+
+    certs.forEach(cert => {
+      const chip = document.createElement('span');
+      chip.className = 'gyde-chip';
+      chip.textContent = cert.name;
+      chip.dataset.id = cert.id;
+      chip.onclick = () => toggleCert(cert, chip);
+      container.appendChild(chip);
+    });
+
+    updateCatchAllBtn('certifications');
+  }
+
+  function toggleCert(cert, chipEl) {
+    if (state.certsCatchAll) {
+      state.certsCatchAll = false;
+      updateCatchAllBtn('certifications');
+    }
+
+    const idx = state.selectedCerts.findIndex(c => c.id === cert.id);
+    if (idx > -1) {
+      state.selectedCerts.splice(idx, 1);
+      chipEl.classList.remove('selected');
+    } else {
+      state.selectedCerts.push(cert);
+      chipEl.classList.add('selected');
+    }
+  }
+
+  // ========================================
+  // CATCH-ALL TOGGLE
+  // ========================================
+  function toggleCatchAll(type) {
+    if (type === 'skills') {
+      state.skillsCatchAll = !state.skillsCatchAll;
+      if (state.skillsCatchAll) {
+        state.selectedSkills = [];
+        document.querySelectorAll('#gydeSkillChips .gyde-chip').forEach(el => el.classList.remove('selected'));
+      }
+    } else {
+      state.certsCatchAll = !state.certsCatchAll;
+      if (state.certsCatchAll) {
+        state.selectedCerts = [];
+        document.querySelectorAll('#gydeCertChips .gyde-chip').forEach(el => el.classList.remove('selected'));
+      }
+    }
+    updateCatchAllBtn(type);
+  }
+
+  function updateCatchAllBtn(type) {
+    const btn = document.getElementById(type === 'skills' ? 'gydeSkillCatchAll' : 'gydeCertCatchAll');
+    const isActive = type === 'skills' ? state.skillsCatchAll : state.certsCatchAll;
+    btn.classList.toggle('selected', isActive);
+  }
+
+  // ========================================
+  // STEP 4: LOCATION
+  // ========================================
+  function selectLocation(type) {
+    state.locationType = type;
+    state.locationValue = null;
+    state.locationStateId = null;
+    state.regionStates = [];
+
+    // Highlight button
+    document.querySelectorAll('.gyde-location-btn').forEach(el => {
+      el.classList.toggle('selected', el.dataset.location === type);
+    });
+
+    // Show/hide dropdowns
+    document.getElementById('gydeStateSelect').classList.toggle('visible', type === 'state');
+    document.getElementById('gydeRegionSelect').classList.toggle('visible', type === 'region');
+
+    // Populate state dropdown if needed
+    if (type === 'state' && document.getElementById('gydeStateDropdown').options.length <= 1) {
+      const dropdown = document.getElementById('gydeStateDropdown');
+      state.formData.states.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.id;
+        opt.textContent = s.name;
+        opt.dataset.name = s.name;
+        dropdown.appendChild(opt);
+      });
+    }
+
+    // Enable next for remote
+    if (type === 'remote') {
+      state.locationValue = 'Remote';
+      document.getElementById('gydeLocationNext').disabled = false;
+    } else {
+      document.getElementById('gydeLocationNext').disabled = true;
+    }
+  }
+
+  function onStateChange() {
+    const dropdown = document.getElementById('gydeStateDropdown');
+    const selected = dropdown.options[dropdown.selectedIndex];
+    if (selected && selected.value) {
+      state.locationValue = selected.dataset.name;
+      state.locationStateId = selected.value;
+      document.getElementById('gydeLocationNext').disabled = false;
+    } else {
+      state.locationValue = null;
+      state.locationStateId = null;
+      document.getElementById('gydeLocationNext').disabled = true;
+    }
+  }
+
+  function onRegionChange() {
+    const dropdown = document.getElementById('gydeRegionDropdown');
+    const regionKey = dropdown.value;
+    if (regionKey) {
+      state.locationValue = dropdown.options[dropdown.selectedIndex].textContent;
+      // Map region name to state IDs
+      const regionStateNames = REGIONS[regionKey] || [];
+      state.regionStates = state.formData.states
+        .filter(s => regionStateNames.includes(s.name))
+        .map(s => ({ id: s.id, name: s.name }));
+      document.getElementById('gydeLocationNext').disabled = false;
+    } else {
+      state.locationValue = null;
+      state.regionStates = [];
+      document.getElementById('gydeLocationNext').disabled = true;
+    }
+  }
+
+  // ========================================
+  // STEP 5: CONTACT VALIDATION
+  // ========================================
+  function validateContact() {
+    const firstName = document.getElementById('gydeFirstName').value.trim();
+    const lastName = document.getElementById('gydeLastName').value.trim();
+    const email = document.getElementById('gydeEmail').value.trim();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    document.getElementById('gydeSubmitBtn').disabled =
+      !(firstName && lastName && email && emailRegex.test(email));
+  }
+
+  // Attach input listeners
+  function attachContactListeners() {
+    ['gydeFirstName', 'gydeLastName', 'gydeEmail'].forEach(id => {
+      document.getElementById(id).addEventListener('input', validateContact);
+    });
+  }
+
+  // ========================================
+  // SUBMIT
+  // ========================================
+  async function submit() {
+    const firstName = document.getElementById('gydeFirstName').value.trim();
+    const lastName = document.getElementById('gydeLastName').value.trim();
+    const email = document.getElementById('gydeEmail').value.trim();
+
+    // Build location payload
+    const location = { type: state.locationType, value: state.locationValue };
+    if (state.locationType === 'state') {
+      location.stateId = state.locationStateId;
+    } else if (state.locationType === 'region') {
+      location.states = state.regionStates;
+    }
+
+    const payload = {
+      source: 'gyde-matchbot-form',
+      timestamp: new Date().toISOString(),
+      sessionId: 'mb_' + Math.random().toString(36).substring(2, 15),
+      contact: { firstName, lastName, email },
+      criteria: {
+        category: {
+          id: state.selectedCategory.id,
+          name: state.selectedCategory.name
+        },
+        skills: state.skillsCatchAll ? [] : state.selectedSkills.map(s => ({ id: s.id, name: s.name })),
+        certifications: state.certsCatchAll ? [] : state.selectedCerts.map(c => ({ id: c.id, name: c.name })),
+        location
+      },
+      catchAll: {
+        skills: state.skillsCatchAll,
+        certifications: state.certsCatchAll
+      }
+    };
+
+    showStep('submitting');
+
+    try {
+      console.log('Gyde Matchbot payload:', JSON.stringify(payload, null, 2));
+
+      const response = await fetch(N8N_WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) throw new Error('Webhook returned ' + response.status);
+
+      const results = await response.json();
+      state.results = results;
+      renderResults(results);
+      showStep('results');
+    } catch (err) {
+      console.error('Gyde Matchbot submit error:', err);
+      // For development: render mock results so the UI can be tested
+      console.log('Using mock results for development...');
+      const mockResults = getMockResults();
+      state.results = mockResults;
+      renderResults(mockResults);
+      showStep('results');
+    }
+  }
+
+  // ========================================
+  // RESULTS RENDERING
+  // ========================================
+  function renderResults(results) {
+    const topContainer = document.getElementById('gydeTopMatches');
+    const moreContainer = document.getElementById('gydeMoreMatches');
+    topContainer.innerHTML = '';
+    moreContainer.innerHTML = '';
+
+    // Top matches
+    const topMatches = results.topMatches || [];
+    topMatches.forEach(expert => {
+      topContainer.appendChild(createProfileCard(expert, true));
+    });
+
+    // Additional matches
+    const additionalMatches = results.additionalMatches || [];
+    if (additionalMatches.length > 0) {
+      document.getElementById('gydeViewMoreContainer').style.display = 'block';
+      additionalMatches.forEach(expert => {
+        moreContainer.appendChild(createProfileCard(expert, false));
+      });
+    } else {
+      document.getElementById('gydeViewMoreContainer').style.display = 'none';
+    }
+  }
+
+  function createProfileCard(expert, showAiSummary) {
+    const card = document.createElement('div');
+    card.className = 'gyde-profile-card';
+
+    const skillsHtml = (expert.skills || []).slice(0, 8).map(s => `<li>${escapeHtml(s)}</li>`).join('');
+    const aboutText = expert.about || '';
+    const truncatedAbout = aboutText.length > 300 ? aboutText.substring(0, 300) + '...' : aboutText;
+
+    let aiSummaryHtml = '';
+    if (showAiSummary && expert.aiSummary) {
+      aiSummaryHtml = `
+        <div class="gyde-profile-ai-summary">
+          <p>${escapeHtml(expert.aiSummary)}</p>
+        </div>`;
+    }
+
+    card.innerHTML = `
+      <div class="gyde-profile-top">
+        <img class="gyde-profile-photo" src="${escapeHtml(expert.profilePicture || '')}" alt="${escapeHtml(expert.name)}" onerror="this.style.display='none'" />
+        <div class="gyde-profile-info">
+          <div class="gyde-profile-name">
+            <a href="${escapeHtml(expert.profileUrl || '#')}" target="_blank">${escapeHtml(expert.name)}</a>
+          </div>
+          <div class="gyde-profile-location">${escapeHtml(expert.location || '')}</div>
+          <div class="gyde-profile-title">${escapeHtml(expert.title || '')}</div>
+        </div>
+      </div>
+      <div class="gyde-profile-body">
+        <div class="gyde-profile-skills">
+          <div class="gyde-profile-skills-label">Services Offered</div>
+          <ul class="gyde-profile-skills-list">${skillsHtml}</ul>
+        </div>
+        <div class="gyde-profile-about">
+          <div class="gyde-profile-about-label">About</div>
+          <div class="gyde-profile-about-text">${escapeHtml(truncatedAbout)}</div>
+        </div>
+      </div>
+      ${aiSummaryHtml}
+      <a class="gyde-profile-link" href="${escapeHtml(expert.profileUrl || '#')}" target="_blank">View Full Profile &rarr;</a>
+    `;
+
+    return card;
+  }
+
+  function showMore() {
+    document.getElementById('gydeAdditionalResults').classList.add('visible');
+    document.getElementById('gydeViewMoreContainer').style.display = 'none';
+  }
+
+  // ========================================
+  // RESET
+  // ========================================
+  function reset() {
+    state.selectedCategory = null;
+    state.selectedSkills = [];
+    state.selectedCerts = [];
+    state.skillsCatchAll = false;
+    state.certsCatchAll = false;
+    state.locationType = null;
+    state.locationValue = null;
+    state.locationStateId = null;
+    state.regionStates = [];
+    state.results = null;
+
+    // Reset UI
+    document.querySelectorAll('.gyde-category-card').forEach(el => el.classList.remove('selected'));
+    document.querySelectorAll('.gyde-location-btn').forEach(el => el.classList.remove('selected'));
+    document.getElementById('gydeStateSelect').classList.remove('visible');
+    document.getElementById('gydeRegionSelect').classList.remove('visible');
+    document.getElementById('gydeFirstName').value = '';
+    document.getElementById('gydeLastName').value = '';
+    document.getElementById('gydeEmail').value = '';
+    document.getElementById('gydeSubmitBtn').disabled = true;
+    document.getElementById('gydeLocationNext').disabled = true;
+    document.getElementById('gydeAdditionalResults').classList.remove('visible');
+    document.getElementById('gydeProgress').style.display = 'flex';
+
+    showStep(0);
+  }
+
+  // ========================================
+  // HELPERS
+  // ========================================
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function getMockResults() {
+    return {
+      topMatches: [
+        {
+          name: 'Majestyk',
+          title: 'Web Design & Development Firm',
+          profilePicture: 'https://uploads-ssl.webflow.com/607ef28c71149b54ce7ae3fc/placeholder.png',
+          location: 'New York City',
+          skills: ['Custom Websites', 'E-Commerce / Online Store Design', 'Front-End Design & Development', 'Back-End Design & Development'],
+          about: 'Majestyk is a New York-based web design and development firm that specializes in creating custom websites specifically for ecommerce platforms and online shopping pages.',
+          profileUrl: 'https://www.joingyde.com/expert/majestyk',
+          membershipPlan: 'pln_gyde-pro-plan-abc123',
+          aiSummary: 'Majestyk is a strong match based on your need for custom website development with e-commerce capabilities. Their portfolio demonstrates deep expertise in the specific services you requested.'
+        },
+        {
+          name: 'Becca Hornen',
+          title: 'Freelance Web Developer',
+          profilePicture: 'https://uploads-ssl.webflow.com/607ef28c71149b54ce7ae3fc/placeholder2.png',
+          location: 'Seattle, WA',
+          skills: ['Front-End Design & Development', 'Landing Page Creation & Design', 'Custom Websites', 'UI/UX Design & Development'],
+          about: 'Becca Hornen is a Seattle-based web developer who has a wealth of experience designing landing pages across industries such as automotive, SaaS, real estate, financial services among others.',
+          profileUrl: 'https://www.joingyde.com/expert/becca-hornen',
+          membershipPlan: 'pln_gyde-basic-plan-c4m80swf',
+          aiSummary: 'Becca brings strong front-end development skills and landing page expertise that aligns well with your project requirements.'
+        }
+      ],
+      additionalMatches: [
+        {
+          name: 'Danielle Martin',
+          title: 'Full-Stack Developer',
+          profilePicture: '',
+          location: 'New York City',
+          skills: ['Content Management Systems (CMS)', 'Custom Websites', 'Landing Page Creation & Design'],
+          about: 'Danielle brings an impactful and experimental UX experience to all projects with 10+ years of experience in design and development.',
+          profileUrl: 'https://www.joingyde.com/expert/danielle-martin',
+          membershipPlan: 'pln_gyde-pro-plan-abc123'
+        },
+        {
+          name: 'Kerry LaCoste',
+          title: 'Freelance Creative Director & Designer',
+          profilePicture: '',
+          location: 'St. Petersburg, FL',
+          skills: ['Front-End Design & Development', 'Landing Page Creation & Design', 'Brand Design'],
+          about: 'Kerry LaCoste is a seasoned Creative Director, Designer, and Founder of LaCoste Design Co. based in St. Petersburg, FL.',
+          profileUrl: 'https://www.joingyde.com/expert/kerry-lacoste',
+          membershipPlan: 'pln_gyde-basic-plan-c4m80swf'
+        },
+        {
+          name: 'Amanda Wallace',
+          title: 'Web & Brand Designer',
+          profilePicture: '',
+          location: 'Remote',
+          skills: ['Custom Websites', 'Brand Design', 'UI/UX Design & Development'],
+          about: 'Amanda is a self-taught digital designer with 10 years of experience creating WordPress and Webflow sites.',
+          profileUrl: 'https://www.joingyde.com/expert/amanda-wallace',
+          membershipPlan: 'pln_gyde-basic-plan-c4m80swf'
+        }
+      ],
+      totalMatches: 5
+    };
+  }
+
+  // ========================================
+  // PUBLIC API
+  // ========================================
+  window.GydeMatchbot = {
+    nextStep,
+    prevStep,
+    selectLocation,
+    toggleCatchAll,
+    onStateChange: onStateChange,
+    onRegionChange: onRegionChange,
+    submit,
+    showMore,
+    reset
+  };
+
+  // ========================================
+  // BOOT
+  // ========================================
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      attachContactListeners();
+      init();
+    });
+  } else {
+    attachContactListeners();
+    init();
+  }
+
+})();
+</script>
+</body>
+</html>

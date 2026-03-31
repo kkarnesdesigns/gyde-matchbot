@@ -1,0 +1,181 @@
+{
+  "_documentation": {
+    "description": "Sample payload sent from Gyde Matchbot Form to n8n webhook. Use this to build the n8n workflow backwards from the expected input.",
+    "webhook_method": "POST",
+    "content_type": "application/json"
+  },
+
+  "request_payload": {
+    "source": "gyde-matchbot-form",
+    "timestamp": "2026-03-24T15:30:00.000Z",
+    "sessionId": "mb_k7x9m2p4q1w3",
+    "contact": {
+      "firstName": "John",
+      "lastName": "Smith",
+      "email": "john@example.com"
+    },
+    "criteria": {
+      "category": {
+        "id": "650b358b2ae0fe324b126ab5",
+        "name": "Web Design"
+      },
+      "skills": [
+        { "id": "622f8449e6c1d80fa352d5cb", "name": "Custom Websites" },
+        { "id": "622f8449e6c1d8e3b252d4cd", "name": "E-Commerce / Online Store Design" }
+      ],
+      "certifications": [
+        { "id": "622f8449e6c1d825eb52d5c0", "name": "Figma" },
+        { "id": "622f8449e6c1d814f852d5db", "name": "Webflow" }
+      ],
+      "location": {
+        "type": "state",
+        "value": "California",
+        "stateId": "6838937bdf9496167ceea4d4"
+      }
+    },
+    "catchAll": {
+      "skills": false,
+      "certifications": false
+    }
+  },
+
+  "request_payload_variations": {
+    "location_remote": {
+      "_note": "When user selects 'Remote'",
+      "location": {
+        "type": "remote",
+        "value": "Remote"
+      }
+    },
+    "location_region": {
+      "_note": "When user selects a region, multiple state IDs are provided",
+      "location": {
+        "type": "region",
+        "value": "Northeast",
+        "states": [
+          { "id": "683893...", "name": "Connecticut" },
+          { "id": "683893...", "name": "Massachusetts" },
+          { "id": "683893...", "name": "New York" },
+          { "id": "683893...", "name": "Pennsylvania" }
+        ]
+      }
+    },
+    "catch_all_skills": {
+      "_note": "When user clicks 'Not sure or open to suggestions' for skills — match on category only, don't filter by specific skills",
+      "skills": [],
+      "catchAll": { "skills": true, "certifications": false }
+    },
+    "catch_all_both": {
+      "_note": "When user clicks 'Not sure' for both skills AND certifications — match purely on category + location",
+      "skills": [],
+      "certifications": [],
+      "catchAll": { "skills": true, "certifications": true }
+    }
+  },
+
+  "expected_response": {
+    "_note": "n8n should return this structure. topMatches are the best matches (max 5, AI-derived with summary). additionalMatches are remaining matches sorted by criteria overlap.",
+    "topMatches": [
+      {
+        "name": "Majestyk",
+        "slug": "majestyk",
+        "title": "Web Design & Development Firm",
+        "profilePicture": "https://4gx9dm3y9u.ucarecd.net/example-photo/",
+        "location": "New York City",
+        "skills": ["Custom Websites", "E-Commerce / Online Store Design", "Front-End Design & Development"],
+        "certifications": ["Figma", "Webflow", "Shopify"],
+        "about": "Majestyk is a New York-based web design and development firm that specializes in creating custom websites specifically for ecommerce platforms and online shopping pages.",
+        "profileUrl": "https://www.joingyde.com/expert/majestyk",
+        "calendarLink": "https://calendly.com/majestyk/30min",
+        "email": "hello@majestyk.com",
+        "membershipPlan": "pln_gyde-pro-plan-abc123",
+        "aiSummary": "Majestyk is an excellent match for your custom website and e-commerce needs. They have deep experience building Figma-designed, Webflow-developed online stores and are based in the state you specified."
+      },
+      {
+        "name": "Becca Hornen",
+        "slug": "becca-hornen",
+        "title": "Freelance Web Developer",
+        "profilePicture": "https://4gx9dm3y9u.ucarecd.net/example-photo2/",
+        "location": "Seattle, WA",
+        "skills": ["Custom Websites", "Landing Page Creation & Design", "Front-End Design & Development"],
+        "certifications": ["Figma", "Webflow"],
+        "about": "Becca is a Seattle-based web developer with extensive experience in custom websites and landing pages across multiple industries.",
+        "profileUrl": "https://www.joingyde.com/expert/becca-hornen",
+        "calendarLink": "https://calendly.com/beccahornen/30min",
+        "email": "becca@example.com",
+        "membershipPlan": "pln_gyde-basic-plan-c4m80swf",
+        "aiSummary": "Becca's expertise in front-end development and Figma/Webflow certifications align closely with your project requirements. She has a proven track record delivering custom websites."
+      }
+    ],
+    "additionalMatches": [
+      {
+        "name": "Kerry LaCoste",
+        "slug": "kerry-lacoste",
+        "title": "Freelance Creative Director & Designer",
+        "profilePicture": "https://4gx9dm3y9u.ucarecd.net/example-photo3/",
+        "location": "St. Petersburg, FL",
+        "skills": ["Front-End Design & Development", "Landing Page Creation & Design", "Brand Design"],
+        "certifications": ["Webflow"],
+        "about": "Kerry LaCoste is a seasoned Creative Director and Designer with expertise in web and brand design.",
+        "profileUrl": "https://www.joingyde.com/expert/kerry-lacoste",
+        "calendarLink": "https://calendly.com/kerrylacoste/30min",
+        "email": "kerry@lacostedesign.co",
+        "membershipPlan": "pln_gyde-pro-plan-abc123"
+      },
+      {
+        "name": "Amanda Wallace",
+        "slug": "amanda-wallace",
+        "title": "Web & Brand Designer",
+        "profilePicture": "",
+        "location": "Remote",
+        "skills": ["Custom Websites", "Brand Design", "UI/UX Design & Development"],
+        "certifications": ["WordPress", "Webflow"],
+        "about": "Amanda is a self-taught digital designer with 10 years of experience creating websites and brand identities.",
+        "profileUrl": "https://www.joingyde.com/expert/amanda-wallace",
+        "calendarLink": "",
+        "email": "amanda@example.com",
+        "membershipPlan": "pln_gyde-basic-plan-c4m80swf"
+      }
+    ],
+    "totalMatches": 4
+  },
+
+  "field_reference": {
+    "_note": "These are the Webflow CMS collection IDs and Airtable field mappings for building the n8n workflow",
+    "webflow_collections": {
+      "experts": "650b358b2ae0fe324b126ab6",
+      "categories": "650b358b2ae0fe324b126ab5",
+      "skills": "650b358b2ae0fe324b126ab2",
+      "certifications": "650b358b2ae0fe324b126a7f",
+      "states": "683892dc0b8aba6f573cad94",
+      "cities": "682f6a2367593d60ff35bff2"
+    },
+    "airtable_base": "appLIHs1G7a9XmkRf",
+    "airtable_expert_fields": {
+      "name": "Full name",
+      "title": "Title",
+      "about": "Brief Description",
+      "email": "Email",
+      "calendarLink": "Calendar Link",
+      "profilePicture": "Profile Picture",
+      "profileUrl": "Profile URL",
+      "categories": "Main Category (NEW MULTIPLE)",
+      "skills": "Skills",
+      "certifications": "Certifications",
+      "state": "State",
+      "city": "City",
+      "hourlyRate": "Hourly Rate",
+      "yearsExperience": "Years of Experience (NEW)",
+      "membershipPlan": "Membership Plan"
+    },
+    "matching_logic": {
+      "topMatches": "Max 5 experts who match the most selected criteria. Use AI (Claude/GPT) to generate a 1-2 sentence summary explaining why each is a good match based on the user's selections. Sort by membershipPlan tier first (higher plans rank higher), then by criteria match count.",
+      "additionalMatches": "All remaining experts under the selected category who match at least some criteria. Sort by membershipPlan tier first (higher plans rank higher), then by criteria match count (descending). No AI summary needed.",
+      "sorting": "Within both topMatches and additionalMatches, experts should be sorted by their Memberstack plan tier first. The membershipPlan field value (e.g. 'pln_gyde-pro-plan-abc123', 'pln_gyde-basic-plan-c4m80swf') determines priority — higher-tier plans appear first. Secondary sort is by number of criteria matches (descending).",
+      "catchAll_behavior": "When catchAll.skills=true, don't filter by specific skills — match all experts in the category. Same for catchAll.certifications.",
+      "location_remote": "When location.type='remote', don't filter by location at all.",
+      "location_state": "When location.type='state', filter by the provided stateId.",
+      "location_region": "When location.type='region', filter by any of the provided state IDs in the states array."
+    }
+  }
+}
