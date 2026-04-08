@@ -503,12 +503,13 @@
   }
 
   .gyde-profile-photo {
-    width: 64px;
-    height: 64px;
+    width: 112px;
+    height: 112px;
     border-radius: 50%;
     object-fit: cover;
     flex-shrink: 0;
     background: var(--gyde-bg);
+    border: 2px solid var(--gyde-border);
   }
 
   .gyde-profile-initials {
@@ -568,10 +569,7 @@
     background: #e5e7eb;
     color: #374151;
   }
-  .gyde-profile-badge.tier-premium { background: #111827; color: #fff; }
-  .gyde-profile-badge.tier-pro { background: #1f2937; color: #fff; }
-  .gyde-profile-badge.tier-freelance { background: #dbeafe; color: #1e3a8a; }
-  .gyde-profile-badge.tier-basic { background: #f3f4f6; color: #4b5563; }
+  .gyde-profile-badge.tier-premium { background: var(--gyde-dark); color: #fff; }
 
   .gyde-profile-skills-list.collapsed li.hidden-item { display: none; }
   .gyde-profile-skills-more {
@@ -648,15 +646,19 @@
 
   .gyde-profile-link {
     display: inline-block;
-    margin-top: 12px;
+    margin-top: 16px;
+    padding: 10px 22px;
     font-size: 14px;
     font-weight: 600;
-    color: var(--gyde-primary);
+    color: var(--gyde-white);
+    background: var(--gyde-primary);
+    border-radius: 999px;
     text-decoration: none;
+    transition: background 0.15s ease;
   }
 
   .gyde-profile-link:hover {
-    text-decoration: underline;
+    background: var(--gyde-primary-hover);
   }
 
   /* View More */
@@ -1631,9 +1633,6 @@
     const plan = (expert.membershipPlan || '').toLowerCase();
     let tierLabel = '', tierClass = '';
     if (plan.includes('premium')) { tierLabel = 'Premium'; tierClass = 'tier-premium'; }
-    else if (plan.includes('pro')) { tierLabel = 'Pro'; tierClass = 'tier-pro'; }
-    else if (plan.includes('freelance')) { tierLabel = 'Freelance'; tierClass = 'tier-freelance'; }
-    else if (plan.includes('basic')) { tierLabel = 'Basic'; tierClass = 'tier-basic'; }
     const badgeHtml = tierLabel ? `<div class="gyde-profile-badge ${tierClass}">${tierLabel}</div>` : '';
 
     let aiSummaryHtml = '';
