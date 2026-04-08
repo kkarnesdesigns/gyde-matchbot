@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/", "destination": "/gyde-matchbot-form.html" }
+  ]
+}

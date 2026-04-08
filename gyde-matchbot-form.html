@@ -1490,7 +1490,8 @@
 
       if (!response.ok) throw new Error('Webhook returned ' + response.status);
 
-      const results = await response.json();
+      const rawResults = await response.json();
+      const results = normalizeResults(rawResults);
       state.results = results;
       renderResults(results);
       showStep('results');
@@ -1503,6 +1504,35 @@
       renderResults(mockResults);
       showStep('results');
     }
+  }
+
+  // ========================================
+  // RESULTS NORMALIZATION
+  // ========================================
+  // Accepts either the expected shape { topMatches, additionalMatches }
+  // or a raw Airtable array of records and normalizes it for rendering.
+  function normalizeResults(raw) {
+    if (raw && !Array.isArray(raw) && (raw.topMatches || raw.additionalMatches)) {
+      return raw;
+    }
+    const records = Array.isArray(raw) ? raw : (raw && Array.isArray(raw.records) ? raw.records : []);
+    const mapped = records.map(rec => {
+      const f = (rec && rec.fields) ? rec.fields : rec || {};
+      return {
+        name: f['Full name'] || f.name || '',
+        title: f['Title'] || f.title || '',
+        profilePicture: f['Profile Picture'] || f.profilePicture || '',
+        location: f['Location'] || f.location || '',
+        skills: f['Name (from Skills)'] || f.skills || [],
+        about: f['Brief Description'] || f.about || '',
+        profileUrl: f['Profile URL'] || f.profileUrl || '#',
+        aiSummary: f.aiSummary || ''
+      };
+    });
+    return {
+      topMatches: mapped.slice(0, 3),
+      additionalMatches: mapped.slice(3)
+    };
   }
 
   // ========================================
