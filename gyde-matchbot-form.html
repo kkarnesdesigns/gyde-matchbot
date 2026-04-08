@@ -1526,12 +1526,26 @@
         skills: f['Name (from Skills)'] || f.skills || [],
         about: f['Brief Description'] || f.about || '',
         profileUrl: f['Profile URL'] || f.profileUrl || '#',
+        membershipPlan: f['Membership Plan'] || f.membershipPlan || '',
         aiSummary: f.aiSummary || ''
       };
     });
+    // Sort by membership tier (higher tiers first), preserving Airtable order within a tier.
+    const tierRank = (plan) => {
+      const p = (plan || '').toLowerCase();
+      if (p.includes('premium')) return 0;
+      if (p.includes('pro')) return 1;
+      if (p.includes('freelance')) return 2;
+      if (p.includes('basic')) return 3;
+      return 4;
+    };
+    const sorted = mapped
+      .map((m, i) => ({ m, i }))
+      .sort((a, b) => tierRank(a.m.membershipPlan) - tierRank(b.m.membershipPlan) || a.i - b.i)
+      .map(entry => entry.m);
     return {
-      topMatches: mapped.slice(0, 3),
-      additionalMatches: mapped.slice(3)
+      topMatches: sorted.slice(0, 3),
+      additionalMatches: sorted.slice(3)
     };
   }
 
