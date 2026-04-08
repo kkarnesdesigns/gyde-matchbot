@@ -1541,6 +1541,7 @@
         profilePicture: f['Profile Picture'] || f.profilePicture || '',
         location: f['Location'] || f.location || '',
         skills: f['Name (from Skills)'] || f.skills || [],
+        certifications: f['Name (from Certifications)'] || f.certifications || [],
         about: f['Brief Description'] || f.about || '',
         profileUrl: f['Profile URL'] || f.profileUrl || '#',
         membershipPlan: f['Membership Plan'] || f.membershipPlan || '',
@@ -1597,7 +1598,13 @@
     const card = document.createElement('div');
     card.className = 'gyde-profile-card';
 
-    const skillsHtml = (expert.skills || []).slice(0, 8).map(s => `<li>${escapeHtml(s)}</li>`).join('');
+    const skillsHtml = (expert.skills || []).slice(0, 5).map(s => `<li>${escapeHtml(s)}</li>`).join('');
+    const certsHtml = (expert.certifications || []).slice(0, 5).map(c => `<li>${escapeHtml(c)}</li>`).join('');
+    const certsBlock = certsHtml ? `
+        <div class="gyde-profile-skills">
+          <div class="gyde-profile-skills-label">Skills</div>
+          <ul class="gyde-profile-skills-list">${certsHtml}</ul>
+        </div>` : '';
     const aboutText = expert.about || '';
     const truncatedAbout = aboutText.length > 300 ? aboutText.substring(0, 300) + '...' : aboutText;
 
@@ -1634,6 +1641,7 @@
           <div class="gyde-profile-skills-label">Services Offered</div>
           <ul class="gyde-profile-skills-list">${skillsHtml}</ul>
         </div>
+        ${certsBlock}
         <div class="gyde-profile-about">
           <div class="gyde-profile-about-label">About</div>
           <div class="gyde-profile-about-text">${escapeHtml(truncatedAbout)}</div>
