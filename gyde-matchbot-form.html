@@ -573,6 +573,18 @@
   .gyde-profile-badge.tier-freelance { background: #dbeafe; color: #1e3a8a; }
   .gyde-profile-badge.tier-basic { background: #f3f4f6; color: #4b5563; }
 
+  .gyde-profile-skills-list.collapsed li.hidden-item { display: none; }
+  .gyde-profile-skills-more {
+    background: none;
+    border: none;
+    padding: 4px 0 0;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--gyde-primary);
+    cursor: pointer;
+  }
+  .gyde-profile-skills-more:hover { text-decoration: underline; }
+
   .gyde-profile-body {
     display: flex;
     gap: 24px;
@@ -1598,13 +1610,21 @@
     const card = document.createElement('div');
     card.className = 'gyde-profile-card';
 
-    const skillsHtml = (expert.skills || []).slice(0, 5).map(s => `<li>${escapeHtml(s)}</li>`).join('');
-    const certsHtml = (expert.certifications || []).slice(0, 5).map(c => `<li>${escapeHtml(c)}</li>`).join('');
-    const certsBlock = certsHtml ? `
+    const renderList = (items, label) => {
+      if (!items || !items.length) return '';
+      const lis = items.map((s, i) => `<li${i >= 5 ? ' class="hidden-item"' : ''}>${escapeHtml(s)}</li>`).join('');
+      const moreBtn = items.length > 5
+        ? `<button type="button" class="gyde-profile-skills-more" onclick="(function(b){var ul=b.previousElementSibling;ul.classList.toggle('collapsed');b.textContent=ul.classList.contains('collapsed')?('View '+(${items.length}-5)+' more'):'View less';})(this)">View ${items.length - 5} more</button>`
+        : '';
+      return `
         <div class="gyde-profile-skills">
-          <div class="gyde-profile-skills-label">Skills</div>
-          <ul class="gyde-profile-skills-list">${certsHtml}</ul>
-        </div>` : '';
+          <div class="gyde-profile-skills-label">${label}</div>
+          <ul class="gyde-profile-skills-list collapsed">${lis}</ul>
+          ${moreBtn}
+        </div>`;
+    };
+    const servicesBlock = renderList(expert.skills || [], 'Services Offered');
+    const certsBlock = renderList(expert.certifications || [], 'Skills');
     const aboutText = expert.about || '';
     const truncatedAbout = aboutText.length > 300 ? aboutText.substring(0, 300) + '...' : aboutText;
 
@@ -1637,10 +1657,7 @@
         </div>
       </div>
       <div class="gyde-profile-body">
-        <div class="gyde-profile-skills">
-          <div class="gyde-profile-skills-label">Services Offered</div>
-          <ul class="gyde-profile-skills-list">${skillsHtml}</ul>
-        </div>
+        ${servicesBlock}
         ${certsBlock}
         <div class="gyde-profile-about">
           <div class="gyde-profile-about-label">About</div>
