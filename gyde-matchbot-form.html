@@ -828,23 +828,11 @@
       <div class="gyde-location-options">
         <button class="gyde-location-btn" data-location="remote" onclick="GydeMatchbot.selectLocation('remote')">Remote</button>
         <button class="gyde-location-btn" data-location="state" onclick="GydeMatchbot.selectLocation('state')">State &#9662;</button>
-        <button class="gyde-location-btn" data-location="region" onclick="GydeMatchbot.selectLocation('region')">Region &#9662;</button>
       </div>
 
       <div class="gyde-location-detail" id="gydeStateSelect">
         <select class="gyde-select" id="gydeStateDropdown" onchange="GydeMatchbot.onStateChange()">
           <option value="">Select a state...</option>
-        </select>
-      </div>
-
-      <div class="gyde-location-detail" id="gydeRegionSelect">
-        <select class="gyde-select" id="gydeRegionDropdown" onchange="GydeMatchbot.onRegionChange()">
-          <option value="">Select a region...</option>
-          <option value="northeast">Northeast</option>
-          <option value="southeast">Southeast</option>
-          <option value="midwest">Midwest</option>
-          <option value="southwest">Southwest</option>
-          <option value="west">West</option>
         </select>
       </div>
     </div>
@@ -924,15 +912,6 @@
   const API_BASE_URL = 'https://webflow-experts-router.vercel.app';
   const N8N_WEBHOOK_URL = 'https://joingyde.app.n8n.cloud/webhook/1c95ea93-5550-402a-b5c0-771f02a6b4ac';
 
-  // Region-to-states mapping
-  const REGIONS = {
-    northeast: ['Connecticut', 'Delaware', 'Maine', 'Maryland', 'Massachusetts', 'New Hampshire', 'New Jersey', 'New York', 'Pennsylvania', 'Rhode Island', 'Vermont'],
-    southeast: ['Alabama', 'Arkansas', 'Florida', 'Georgia', 'Kentucky', 'Louisiana', 'Mississippi', 'North Carolina', 'South Carolina', 'Tennessee', 'Virginia', 'West Virginia'],
-    midwest: ['Illinois', 'Indiana', 'Iowa', 'Kansas', 'Michigan', 'Minnesota', 'Missouri', 'Nebraska', 'North Dakota', 'Ohio', 'South Dakota', 'Wisconsin'],
-    southwest: ['Arizona', 'New Mexico', 'Oklahoma', 'Texas'],
-    west: ['Alaska', 'California', 'Colorado', 'Hawaii', 'Idaho', 'Montana', 'Nevada', 'Oregon', 'Utah', 'Washington', 'Wyoming']
-  };
-
   // ========================================
   // STATE
   // ========================================
@@ -944,10 +923,9 @@
     selectedCerts: [],
     skillsCatchAll: false,
     certsCatchAll: false,
-    locationType: null,    // 'remote' | 'state' | 'region'
+    locationType: null,    // 'remote' | 'state'
     locationValue: null,
     locationStateId: null,
-    regionStates: [],      // state IDs for selected region
     results: null
   };
 
@@ -959,230 +937,16 @@
 
     try {
       const response = await fetch(`${API_BASE_URL}/api/form-options`);
-      if (!response.ok) throw new Error('Failed to load form options');
+      if (!response.ok) throw new Error(`Failed to load form options (HTTP ${response.status})`);
       state.formData = await response.json();
     } catch (err) {
-      console.warn('Gyde Matchbot: API unavailable, using mock data for development.', err.message);
-      state.formData = getMockFormData();
+      console.error('Gyde Matchbot: failed to load form data.', err);
+      showStep('error');
+      return;
     }
 
     renderCategories();
     showStep(0);
-  }
-
-  /**
-   * Mock CMS data for local development / testing.
-   * Replace with live API data in production.
-   */
-  function getMockFormData() {
-    const catWebDesign = 'cat_web-design';
-    const catGraphicDesign = 'cat_graphic-design';
-    const catSocialMedia = 'cat_social-media';
-    const catSEO = 'cat_seo';
-    const catCopywriting = 'cat_copywriting';
-    const catVideoPhoto = 'cat_video-photo';
-    const catPaidMedia = 'cat_paid-media';
-    const catEmailMarketing = 'cat_email-marketing';
-
-    return {
-      categories: [
-        { id: catWebDesign, name: 'Web Design', slug: 'web-design' },
-        { id: catGraphicDesign, name: 'Graphic Design', slug: 'graphic-design' },
-        { id: catSocialMedia, name: 'Social Media', slug: 'social-media' },
-        { id: catSEO, name: 'SEO', slug: 'seo' },
-        { id: catCopywriting, name: 'Copywriting', slug: 'copywriting' },
-        { id: catVideoPhoto, name: 'Video & Photography', slug: 'video-photography' },
-        { id: catPaidMedia, name: 'Paid Media', slug: 'paid-media' },
-        { id: catEmailMarketing, name: 'Email Marketing', slug: 'email-marketing' }
-      ],
-      skills: {
-        [catWebDesign]: [
-          { id: 'sk_1', name: 'A.I. & Machine Learning', slug: 'ai-ml' },
-          { id: 'sk_2', name: 'App Design & Development', slug: 'app-design' },
-          { id: 'sk_3', name: 'Back-End Design & Development', slug: 'back-end' },
-          { id: 'sk_4', name: 'Content Management Systems (CMS)', slug: 'cms' },
-          { id: 'sk_5', name: 'Custom Websites', slug: 'custom-websites' },
-          { id: 'sk_6', name: 'E-Commerce / Online Store Design', slug: 'ecommerce' },
-          { id: 'sk_7', name: 'Front-End Design & Development', slug: 'front-end' },
-          { id: 'sk_8', name: 'Interface Design', slug: 'interface-design' },
-          { id: 'sk_9', name: 'Landing Page Creation & Design', slug: 'landing-page' },
-          { id: 'sk_10', name: 'Migrations & Integrations', slug: 'migrations' },
-          { id: 'sk_11', name: 'Product Design', slug: 'product-design' },
-          { id: 'sk_12', name: 'Product Page Design', slug: 'product-page' },
-          { id: 'sk_13', name: 'UI/UX Design & Development', slug: 'ui-ux' },
-          { id: 'sk_14', name: 'Web Analytics', slug: 'web-analytics' },
-          { id: 'sk_15', name: 'White Papers', slug: 'white-papers' }
-        ],
-        [catGraphicDesign]: [
-          { id: 'sk_20', name: 'Brand Design', slug: 'brand-design' },
-          { id: 'sk_21', name: 'Brochure & Flyer Design', slug: 'brochure' },
-          { id: 'sk_22', name: 'Illustrations', slug: 'illustrations' },
-          { id: 'sk_23', name: 'Infographics', slug: 'infographics' },
-          { id: 'sk_24', name: 'Logo Design & Creation', slug: 'logo-design' },
-          { id: 'sk_25', name: 'Packaging Design', slug: 'packaging' },
-          { id: 'sk_26', name: 'Pitch Deck Design', slug: 'pitch-deck' },
-          { id: 'sk_27', name: 'Posters & Signs', slug: 'posters' },
-          { id: 'sk_28', name: 'Presentation Design', slug: 'presentations' },
-          { id: 'sk_29', name: 'Print Material', slug: 'print' },
-          { id: 'sk_30', name: 'Trade Show Displays', slug: 'trade-show' }
-        ],
-        [catSocialMedia]: [
-          { id: 'sk_40', name: 'Community Building/Management', slug: 'community' },
-          { id: 'sk_41', name: 'Content Creation', slug: 'content-creation' },
-          { id: 'sk_42', name: 'Content Planning & Strategy', slug: 'content-strategy' },
-          { id: 'sk_43', name: 'Influencer Marketing', slug: 'influencer' },
-          { id: 'sk_44', name: 'Organic Social Media', slug: 'organic-social' },
-          { id: 'sk_45', name: 'Paid Social Media', slug: 'paid-social' },
-          { id: 'sk_46', name: 'Short Videos / Reels', slug: 'short-videos' },
-          { id: 'sk_47', name: 'Social Media Management', slug: 'social-management' }
-        ],
-        [catSEO]: [
-          { id: 'sk_50', name: 'Enterprise SEO', slug: 'enterprise-seo' },
-          { id: 'sk_51', name: 'Link Building', slug: 'link-building' },
-          { id: 'sk_52', name: 'Local SEO', slug: 'local-seo' },
-          { id: 'sk_53', name: 'Search Engine Optimization (SEO)', slug: 'seo' },
-          { id: 'sk_54', name: 'Technical SEO', slug: 'technical-seo' },
-          { id: 'sk_55', name: 'Google Analytics', slug: 'google-analytics' }
-        ],
-        [catCopywriting]: [
-          { id: 'sk_60', name: 'Advertising Copywriting', slug: 'ad-copy' },
-          { id: 'sk_61', name: 'B2B Copywriting', slug: 'b2b-copy' },
-          { id: 'sk_62', name: 'Blogs & Articles', slug: 'blogs' },
-          { id: 'sk_63', name: 'Brand Writing', slug: 'brand-writing' },
-          { id: 'sk_64', name: 'Email Writing', slug: 'email-writing' },
-          { id: 'sk_65', name: 'Landing Page Copy', slug: 'landing-page-copy' },
-          { id: 'sk_66', name: 'SEO Writing', slug: 'seo-writing' },
-          { id: 'sk_67', name: 'Script Writing', slug: 'script-writing' }
-        ],
-        [catVideoPhoto]: [
-          { id: 'sk_70', name: 'Animation', slug: 'animation' },
-          { id: 'sk_71', name: 'Explainer Videos', slug: 'explainer-videos' },
-          { id: 'sk_72', name: 'Motion Graphics & Design', slug: 'motion-graphics' },
-          { id: 'sk_73', name: 'Photography', slug: 'photography' },
-          { id: 'sk_74', name: 'Product Photography', slug: 'product-photography' },
-          { id: 'sk_75', name: 'Studio Photography', slug: 'studio-photography' },
-          { id: 'sk_76', name: 'Video Editing', slug: 'video-editing' },
-          { id: 'sk_77', name: 'Video Production', slug: 'video-production' }
-        ],
-        [catPaidMedia]: [
-          { id: 'sk_80', name: 'Display & Banner Ads', slug: 'display-ads' },
-          { id: 'sk_81', name: 'Media Buying & Planning', slug: 'media-buying' },
-          { id: 'sk_82', name: 'Paid Media Strategy & Execution', slug: 'paid-media-strategy' },
-          { id: 'sk_83', name: 'Pay Per Click (PPC)', slug: 'ppc' },
-          { id: 'sk_84', name: 'Performance Marketing', slug: 'performance' },
-          { id: 'sk_85', name: 'Search Engine Marketing (SEM)', slug: 'sem' }
-        ],
-        [catEmailMarketing]: [
-          { id: 'sk_90', name: 'Email Marketing & Campaigns', slug: 'email-campaigns' },
-          { id: 'sk_91', name: 'Lifecycle Marketing', slug: 'lifecycle' },
-          { id: 'sk_92', name: 'Newsletters', slug: 'newsletters' },
-          { id: 'sk_93', name: 'Marketing Campaign Creation', slug: 'campaign-creation' }
-        ]
-      },
-      certifications: {
-        [catWebDesign]: [
-          { id: 'cert_1', name: 'Webflow', slug: 'webflow' },
-          { id: 'cert_2', name: 'WordPress', slug: 'wordpress' },
-          { id: 'cert_3', name: 'Shopify', slug: 'shopify' },
-          { id: 'cert_4', name: 'Figma', slug: 'figma' },
-          { id: 'cert_5', name: 'Squarespace', slug: 'squarespace' },
-          { id: 'cert_6', name: 'Wix', slug: 'wix' },
-          { id: 'cert_7', name: 'HubSpot CMS', slug: 'hubspot-cms' },
-          { id: 'cert_8', name: 'React', slug: 'react' }
-        ],
-        [catGraphicDesign]: [
-          { id: 'cert_10', name: 'Adobe Creative Cloud', slug: 'adobe-cc' },
-          { id: 'cert_11', name: 'Adobe Photoshop', slug: 'photoshop' },
-          { id: 'cert_12', name: 'Adobe Illustrator', slug: 'illustrator' },
-          { id: 'cert_13', name: 'Figma', slug: 'figma' },
-          { id: 'cert_14', name: 'Canva', slug: 'canva' },
-          { id: 'cert_15', name: 'InDesign', slug: 'indesign' }
-        ],
-        [catSocialMedia]: [
-          { id: 'cert_20', name: 'Instagram', slug: 'instagram' },
-          { id: 'cert_21', name: 'TikTok', slug: 'tiktok' },
-          { id: 'cert_22', name: 'LinkedIn', slug: 'linkedin' },
-          { id: 'cert_23', name: 'Facebook', slug: 'facebook' },
-          { id: 'cert_24', name: 'Twitter (X)', slug: 'twitter' },
-          { id: 'cert_25', name: 'YouTube', slug: 'youtube' },
-          { id: 'cert_26', name: 'Pinterest', slug: 'pinterest' }
-        ],
-        [catSEO]: [
-          { id: 'cert_30', name: 'Google Analytics', slug: 'google-analytics' },
-          { id: 'cert_31', name: 'Google Search Console', slug: 'search-console' },
-          { id: 'cert_32', name: 'SEMrush', slug: 'semrush' },
-          { id: 'cert_33', name: 'Ahrefs', slug: 'ahrefs' },
-          { id: 'cert_34', name: 'Moz', slug: 'moz' }
-        ],
-        [catPaidMedia]: [
-          { id: 'cert_40', name: 'Google Ads', slug: 'google-ads' },
-          { id: 'cert_41', name: 'Meta Ads', slug: 'meta-ads' },
-          { id: 'cert_42', name: 'LinkedIn Ads', slug: 'linkedin-ads' },
-          { id: 'cert_43', name: 'TikTok Ads', slug: 'tiktok-ads' },
-          { id: 'cert_44', name: 'Microsoft Ads', slug: 'microsoft-ads' }
-        ],
-        [catEmailMarketing]: [
-          { id: 'cert_50', name: 'Mailchimp', slug: 'mailchimp' },
-          { id: 'cert_51', name: 'Klaviyo', slug: 'klaviyo' },
-          { id: 'cert_52', name: 'HubSpot', slug: 'hubspot' },
-          { id: 'cert_53', name: 'ActiveCampaign', slug: 'activecampaign' },
-          { id: 'cert_54', name: 'ConvertKit', slug: 'convertkit' }
-        ]
-      },
-      states: [
-        { id: 'st_al', name: 'Alabama', slug: 'alabama' },
-        { id: 'st_ak', name: 'Alaska', slug: 'alaska' },
-        { id: 'st_az', name: 'Arizona', slug: 'arizona' },
-        { id: 'st_ar', name: 'Arkansas', slug: 'arkansas' },
-        { id: 'st_ca', name: 'California', slug: 'california' },
-        { id: 'st_co', name: 'Colorado', slug: 'colorado' },
-        { id: 'st_ct', name: 'Connecticut', slug: 'connecticut' },
-        { id: 'st_de', name: 'Delaware', slug: 'delaware' },
-        { id: 'st_dc', name: 'District of Columbia', slug: 'dc' },
-        { id: 'st_fl', name: 'Florida', slug: 'florida' },
-        { id: 'st_ga', name: 'Georgia', slug: 'georgia' },
-        { id: 'st_hi', name: 'Hawaii', slug: 'hawaii' },
-        { id: 'st_id', name: 'Idaho', slug: 'idaho' },
-        { id: 'st_il', name: 'Illinois', slug: 'illinois' },
-        { id: 'st_in', name: 'Indiana', slug: 'indiana' },
-        { id: 'st_ia', name: 'Iowa', slug: 'iowa' },
-        { id: 'st_ks', name: 'Kansas', slug: 'kansas' },
-        { id: 'st_ky', name: 'Kentucky', slug: 'kentucky' },
-        { id: 'st_la', name: 'Louisiana', slug: 'louisiana' },
-        { id: 'st_me', name: 'Maine', slug: 'maine' },
-        { id: 'st_md', name: 'Maryland', slug: 'maryland' },
-        { id: 'st_ma', name: 'Massachusetts', slug: 'massachusetts' },
-        { id: 'st_mi', name: 'Michigan', slug: 'michigan' },
-        { id: 'st_mn', name: 'Minnesota', slug: 'minnesota' },
-        { id: 'st_ms', name: 'Mississippi', slug: 'mississippi' },
-        { id: 'st_mo', name: 'Missouri', slug: 'missouri' },
-        { id: 'st_mt', name: 'Montana', slug: 'montana' },
-        { id: 'st_ne', name: 'Nebraska', slug: 'nebraska' },
-        { id: 'st_nv', name: 'Nevada', slug: 'nevada' },
-        { id: 'st_nh', name: 'New Hampshire', slug: 'new-hampshire' },
-        { id: 'st_nj', name: 'New Jersey', slug: 'new-jersey' },
-        { id: 'st_nm', name: 'New Mexico', slug: 'new-mexico' },
-        { id: 'st_ny', name: 'New York', slug: 'new-york' },
-        { id: 'st_nc', name: 'North Carolina', slug: 'north-carolina' },
-        { id: 'st_nd', name: 'North Dakota', slug: 'north-dakota' },
-        { id: 'st_oh', name: 'Ohio', slug: 'ohio' },
-        { id: 'st_ok', name: 'Oklahoma', slug: 'oklahoma' },
-        { id: 'st_or', name: 'Oregon', slug: 'oregon' },
-        { id: 'st_pa', name: 'Pennsylvania', slug: 'pennsylvania' },
-        { id: 'st_ri', name: 'Rhode Island', slug: 'rhode-island' },
-        { id: 'st_sc', name: 'South Carolina', slug: 'south-carolina' },
-        { id: 'st_sd', name: 'South Dakota', slug: 'south-dakota' },
-        { id: 'st_tn', name: 'Tennessee', slug: 'tennessee' },
-        { id: 'st_tx', name: 'Texas', slug: 'texas' },
-        { id: 'st_ut', name: 'Utah', slug: 'utah' },
-        { id: 'st_vt', name: 'Vermont', slug: 'vermont' },
-        { id: 'st_va', name: 'Virginia', slug: 'virginia' },
-        { id: 'st_wa', name: 'Washington', slug: 'washington' },
-        { id: 'st_wv', name: 'West Virginia', slug: 'west-virginia' },
-        { id: 'st_wi', name: 'Wisconsin', slug: 'wisconsin' },
-        { id: 'st_wy', name: 'Wyoming', slug: 'wyoming' }
-      ]
-    };
   }
 
   // ========================================
@@ -1388,7 +1152,6 @@
     state.locationType = type;
     state.locationValue = null;
     state.locationStateId = null;
-    state.regionStates = [];
 
     // Highlight button
     document.querySelectorAll('.gyde-location-btn').forEach(el => {
@@ -1397,7 +1160,6 @@
 
     // Show/hide dropdowns
     document.getElementById('gydeStateSelect').classList.toggle('visible', type === 'state');
-    document.getElementById('gydeRegionSelect').classList.toggle('visible', type === 'region');
 
     // Populate state dropdown if needed
     if (type === 'state' && document.getElementById('gydeStateDropdown').options.length <= 1) {
@@ -1434,24 +1196,6 @@
     }
   }
 
-  function onRegionChange() {
-    const dropdown = document.getElementById('gydeRegionDropdown');
-    const regionKey = dropdown.value;
-    if (regionKey) {
-      state.locationValue = dropdown.options[dropdown.selectedIndex].textContent;
-      // Map region name to state IDs
-      const regionStateNames = REGIONS[regionKey] || [];
-      state.regionStates = state.formData.states
-        .filter(s => regionStateNames.includes(s.name))
-        .map(s => ({ id: s.id, name: s.name }));
-      document.getElementById('gydeLocationNext').disabled = false;
-    } else {
-      state.locationValue = null;
-      state.regionStates = [];
-      document.getElementById('gydeLocationNext').disabled = true;
-    }
-  }
-
   // ========================================
   // STEP 5: CONTACT VALIDATION
   // ========================================
@@ -1484,8 +1228,6 @@
     const location = { type: state.locationType, value: state.locationValue };
     if (state.locationType === 'state') {
       location.stateId = state.locationStateId;
-    } else if (state.locationType === 'region') {
-      location.states = state.regionStates;
     }
 
     const payload = {
@@ -1687,14 +1429,12 @@
     state.locationType = null;
     state.locationValue = null;
     state.locationStateId = null;
-    state.regionStates = [];
     state.results = null;
 
     // Reset UI
     document.querySelectorAll('.gyde-category-card').forEach(el => el.classList.remove('selected'));
     document.querySelectorAll('.gyde-location-btn').forEach(el => el.classList.remove('selected'));
     document.getElementById('gydeStateSelect').classList.remove('visible');
-    document.getElementById('gydeRegionSelect').classList.remove('visible');
     document.getElementById('gydeFirstName').value = '';
     document.getElementById('gydeLastName').value = '';
     document.getElementById('gydeEmail').value = '';
@@ -1786,7 +1526,6 @@
     selectLocation,
     toggleCatchAll,
     onStateChange: onStateChange,
-    onRegionChange: onRegionChange,
     submit,
     showMore,
     reset
