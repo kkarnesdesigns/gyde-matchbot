@@ -998,17 +998,32 @@
   // ========================================
   // STEP 1: CATEGORIES
   // ========================================
+  const HIDDEN_CATEGORY_PATTERNS = [
+    /^seo$/i,
+    /^content marketing$/i,
+    /photography/i,
+    /videography/i
+  ];
+
+  function isHiddenCategory(cat) {
+    const name = (cat.name || '').trim();
+    const slug = (cat.slug || '').trim();
+    return HIDDEN_CATEGORY_PATTERNS.some(re => re.test(name) || re.test(slug));
+  }
+
   function renderCategories() {
     const container = document.getElementById('gydeCategoryList');
     container.innerHTML = '';
 
-    state.formData.categories.forEach(cat => {
-      const card = document.createElement('div');
-      card.className = 'gyde-category-card';
-      card.textContent = cat.name;
-      card.onclick = () => selectCategory(cat);
-      container.appendChild(card);
-    });
+    state.formData.categories
+      .filter(cat => !isHiddenCategory(cat))
+      .forEach(cat => {
+        const card = document.createElement('div');
+        card.className = 'gyde-category-card';
+        card.textContent = cat.name;
+        card.onclick = () => selectCategory(cat);
+        container.appendChild(card);
+      });
   }
 
   function selectCategory(category) {
