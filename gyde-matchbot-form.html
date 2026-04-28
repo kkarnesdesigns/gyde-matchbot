@@ -1278,8 +1278,7 @@
 
       if (!response.ok) throw new Error('Webhook returned ' + response.status);
 
-      const rawResults = await response.json();
-      const results = normalizeResults(rawResults);
+      const results = await response.json();
       state.results = results;
       renderResults(results);
       showStep('results');
@@ -1292,50 +1291,6 @@
       renderResults(mockResults);
       showStep('results');
     }
-  }
-
-  // ========================================
-  // RESULTS NORMALIZATION
-  // ========================================
-  // Accepts either the expected shape { topMatches, additionalMatches }
-  // or a raw Airtable array of records and normalizes it for rendering.
-  function normalizeResults(raw) {
-    if (raw && !Array.isArray(raw) && (raw.topMatches || raw.additionalMatches)) {
-      return raw;
-    }
-    const records = Array.isArray(raw) ? raw : (raw && Array.isArray(raw.records) ? raw.records : []);
-    const mapped = records.map(rec => {
-      const f = (rec && rec.fields) ? rec.fields : rec || {};
-      return {
-        name: f['Full name'] || f.name || '',
-        title: f['Title'] || f.title || '',
-        profilePicture: f['Profile Picture'] || f.profilePicture || '',
-        location: f['Location'] || f.location || '',
-        skills: f['Name (from Skills)'] || f.skills || [],
-        certifications: f['Name (from Certifications)'] || f.certifications || [],
-        about: f['Brief Description'] || f.about || '',
-        profileUrl: f['Profile URL'] || f.profileUrl || '#',
-        membershipPlan: f['Membership Plan'] || f.membershipPlan || '',
-        aiSummary: f.aiSummary || ''
-      };
-    });
-    // Sort by membership tier (higher tiers first), preserving Airtable order within a tier.
-    const tierRank = (plan) => {
-      const p = (plan || '').toLowerCase();
-      if (p.includes('premium')) return 0;
-      if (p.includes('pro')) return 1;
-      if (p.includes('freelance')) return 2;
-      if (p.includes('basic')) return 3;
-      return 4;
-    };
-    const sorted = mapped
-      .map((m, i) => ({ m, i }))
-      .sort((a, b) => tierRank(a.m.membershipPlan) - tierRank(b.m.membershipPlan) || a.i - b.i)
-      .map(entry => entry.m);
-    return {
-      topMatches: sorted.slice(0, 3),
-      additionalMatches: sorted.slice(3)
-    };
   }
 
   // ========================================
