@@ -126,6 +126,10 @@
 }
 
 .gyde-category-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.2;
   background: var(--gyde-white);
   border: 2px solid var(--gyde-border);
   border-radius: var(--gyde-radius);
@@ -164,6 +168,10 @@
 }
 
 .gyde-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
   background: var(--gyde-chip-bg);
   border: 1.5px solid var(--gyde-chip-border);
   border-radius: 20px;
@@ -201,6 +209,10 @@
 }
 
 .gyde-catch-all-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
   background: var(--gyde-catch-all-bg);
   border: 1.5px solid var(--gyde-catch-all-border);
   border-radius: 20px;
@@ -238,6 +250,10 @@
 }
 
 .gyde-location-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
   background: var(--gyde-white);
   border: 2px solid var(--gyde-border);
   border-radius: var(--gyde-radius);
@@ -350,6 +366,10 @@
 }
 
 .gyde-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
   padding: 14px 32px;
   border-radius: var(--gyde-radius);
   font-size: 15px;
@@ -623,7 +643,10 @@
 }
 
 .gyde-profile-link {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
   margin-top: 16px;
   padding: 10px 22px;
   font-size: 14px;
@@ -646,6 +669,10 @@
 }
 
 .gyde-view-more-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
   background: none;
   border: none;
   color: var(--gyde-primary);
@@ -677,6 +704,10 @@
 }
 
 .gyde-start-over-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
   background: transparent;
   border: 2px solid var(--gyde-border);
   border-radius: var(--gyde-radius);
