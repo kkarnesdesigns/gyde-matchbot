@@ -29,7 +29,7 @@
    ======================================== */
 .gyde-matchbot {
   font-family: var(--gyde-font);
-  max-width: 800px;
+  max-width: 1000px;
   margin: 0 auto;
   color: var(--gyde-text);
   line-height: 1.5;
@@ -133,7 +133,7 @@
   background: var(--gyde-white);
   border: 2px solid var(--gyde-border);
   border-radius: var(--gyde-radius);
-  padding: 20px 16px;
+  padding: 20px 8px;
   text-align: center;
   cursor: pointer;
   transition: all 0.2s ease;
