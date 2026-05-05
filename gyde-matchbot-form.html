@@ -41,13 +41,12 @@
 
   <!-- Step 2: Skills Selection -->
   <div class="gyde-step" id="gydeStep1">
-    <h2 class="gyde-step-title">What are you looking for more specifically?</h2>
-    <p class="gyde-step-subtitle">Select all that apply, or click "Not sure" to see all experts in this category</p>
+    <h2 class="gyde-step-title">What kind of work do you need help with?</h2>
+    <p class="gyde-step-subtitle">Select all that apply, or click "Not sure" to see all professionals in this category</p>
     <div class="gyde-chips-container">
       <div class="gyde-section-label">Services</div>
       <div class="gyde-chips" id="gydeSkillChips"></div>
       <div class="gyde-catch-all">
-        <span class="gyde-catch-all-hint">Select all that apply, or click</span>
         <button class="gyde-catch-all-btn" id="gydeSkillCatchAll" onclick="GydeMatchbot.toggleCatchAll('skills')">Not sure or open to suggestions</button>
       </div>
     </div>
@@ -59,13 +58,12 @@
 
   <!-- Step 3: Certifications/Platforms Selection -->
   <div class="gyde-step" id="gydeStep2">
-    <h2 class="gyde-step-title">Any platform or tool preferences?</h2>
-    <p class="gyde-step-subtitle">Select platforms your expert should know</p>
+    <h2 class="gyde-step-title">Any platform preferences or requirements?</h2>
+    <p class="gyde-step-subtitle">Select platforms your professional should know</p>
     <div class="gyde-chips-container">
-      <div class="gyde-section-label">Platform Focus</div>
+      <div class="gyde-section-label">Platforms & Tools</div>
       <div class="gyde-chips" id="gydeCertChips"></div>
       <div class="gyde-catch-all">
-        <span class="gyde-catch-all-hint">Select all that apply, or click</span>
         <button class="gyde-catch-all-btn" id="gydeCertCatchAll" onclick="GydeMatchbot.toggleCatchAll('certifications')">Not sure or open to suggestions</button>
       </div>
     </div>
@@ -77,7 +75,7 @@
 
   <!-- Step 4: Location -->
   <div class="gyde-step" id="gydeStep3">
-    <h2 class="gyde-step-title">Do you need someone in a certain location, or is remote okay?</h2>
+    <h2 class="gyde-step-title">Do you need someone remote (U.S.A.) or in a certain location?</h2>
     <div class="gyde-location">
       <div class="gyde-location-options">
         <button class="gyde-location-btn" data-location="remote" onclick="GydeMatchbot.selectLocation('remote')">Remote</button>
@@ -163,6 +161,6 @@
   </div>
 </div>
 
-<script src="/gyde-matchbot.js"></script>
+<script defer src="/gyde-matchbot.js"></script>
 </body>
 </html>
