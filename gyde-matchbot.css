@@ -91,7 +91,7 @@
   font-weight: 700;
   color: var(--gyde-dark);
   text-align: center;
-  margin-bottom: 8px;
+  margin-bottom: 25px;
 }
 
 .gyde-step-subtitle {
@@ -377,6 +377,24 @@
   color: var(--gyde-text-light);
   margin-top: 8px;
   font-style: italic;
+}
+
+.gyde-legal-note {
+  text-align: center;
+  font-size: 12px;
+  color: var(--gyde-text-light);
+  line-height: 1.5;
+  margin-top: 16px;
+  padding: 0 8px;
+}
+
+.gyde-legal-note a {
+  color: var(--gyde-text-light);
+  text-decoration: underline;
+}
+
+.gyde-legal-note a:hover {
+  color: var(--gyde-primary);
 }
 
 /* ========================================

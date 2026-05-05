@@ -13,7 +13,7 @@
   ==========================================================================
 -->
 
-<link rel="stylesheet" href="https://gyde-matchbot.vercel.app/gyde-matchbot.css?v=5">
+<link rel="stylesheet" href="https://gyde-matchbot.vercel.app/gyde-matchbot.css?v=6">
 
 <div class="gyde-matchbot" id="gydeMatchbot">
 
@@ -101,7 +101,13 @@
       <input type="email" class="gyde-input" id="gydeEmail" placeholder="Your Email Address" style="margin-bottom: 0;" />
       <textarea class="gyde-textarea" id="gydeProjectDetails" rows="4" placeholder="Tell us a bit more about your project (optional) — timeline, budget, goals, anything an expert should know."></textarea>
       <p class="gyde-spam-note">(You won't receive any spam!)</p>
-      <button class="gyde-btn gyde-btn-submit" id="gydeSubmitBtn" onclick="GydeMatchbot.submit()" disabled>Submit</button>
+      <button class="gyde-btn gyde-btn-submit" id="gydeSubmitBtn" onclick="GydeMatchbot.submit()" disabled>View Professionals</button>
+      <p class="gyde-legal-note">
+        By clicking View Professionals, I agree to Gyde&rsquo;s
+        <a href="https://www.joingyde.com/terms-conditions" target="_blank" rel="noopener">Terms</a> and
+        <a href="https://www.joingyde.com/privacy-policy" target="_blank" rel="noopener">Privacy Policy</a>,
+        and that Gyde and its service professionals, or parties acting on their behalf, may contact me using the email address I provided.
+      </p>
     </div>
     <div class="gyde-nav" style="margin-top: 16px;">
       <button class="gyde-btn gyde-btn-back" onclick="GydeMatchbot.prevStep()">&larr; Back</button>
@@ -144,4 +150,4 @@
   </div>
 </div>
 
-<script src="https://gyde-matchbot.vercel.app/gyde-matchbot.js?v=5"></script>
+<script src="https://gyde-matchbot.vercel.app/gyde-matchbot.js?v=6"></script>
