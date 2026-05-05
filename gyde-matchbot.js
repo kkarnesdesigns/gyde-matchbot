@@ -333,6 +333,8 @@
     const firstName = document.getElementById('gydeFirstName').value.trim();
     const lastName = document.getElementById('gydeLastName').value.trim();
     const email = document.getElementById('gydeEmail').value.trim();
+    const projectDetailsEl = document.getElementById('gydeProjectDetails');
+    const projectDetails = projectDetailsEl ? projectDetailsEl.value.trim() : '';
 
     // Build location payload
     const location = { type: state.locationType, value: state.locationValue };
@@ -344,7 +346,7 @@
       source: 'gyde-matchbot-form',
       timestamp: new Date().toISOString(),
       sessionId: 'mb_' + Math.random().toString(36).substring(2, 15),
-      contact: { firstName, lastName, email },
+      contact: { firstName, lastName, email, projectDetails },
       criteria: {
         category: {
           id: state.selectedCategory.id,
@@ -536,6 +538,8 @@
     document.getElementById('gydeFirstName').value = '';
     document.getElementById('gydeLastName').value = '';
     document.getElementById('gydeEmail').value = '';
+    const pd = document.getElementById('gydeProjectDetails');
+    if (pd) pd.value = '';
     document.getElementById('gydeSubmitBtn').disabled = true;
     document.getElementById('gydeLocationNext').disabled = true;
     document.getElementById('gydeAdditionalResults').classList.remove('visible');

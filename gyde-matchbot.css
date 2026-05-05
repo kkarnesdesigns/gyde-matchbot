@@ -346,6 +346,31 @@
   border-color: #e74c3c;
 }
 
+.gyde-textarea {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 14px 16px;
+  border: 1.5px solid var(--gyde-border);
+  border-radius: var(--gyde-radius);
+  font-size: 15px;
+  font-family: var(--gyde-font);
+  color: var(--gyde-text);
+  background: var(--gyde-white);
+  min-height: 120px;
+  resize: vertical;
+  transition: border-color 0.2s ease;
+}
+
+.gyde-textarea:focus {
+  outline: none;
+  border-color: var(--gyde-primary);
+}
+
+.gyde-textarea::placeholder {
+  color: #bbb;
+}
+
 .gyde-spam-note {
   text-align: center;
   font-size: 13px;
