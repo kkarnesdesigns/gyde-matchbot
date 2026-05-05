@@ -1,21 +1,22 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gyde Matchbot - Find Your Expert</title>
-  <link rel="stylesheet" href="/gyde-matchbot.css">
-</head>
-<body style="background: #f5f5f7; padding: 40px 20px;">
 <!--
-  Gyde Matchbot - Standalone Preview
-  This page is a hosted preview of the embed. The Webflow embed lives in webflow-embed.html.
-  Both load the same /gyde-matchbot.css and /gyde-matchbot.js so edits ship from one source.
+  Gyde Matchbot - Webflow Embed Snippet
+  ==========================================================================
+  Paste the entire block below (from <link> to </script>) into a Webflow
+  Embed element on the page where you want the matchbot to appear.
+
+  IMPORTANT: Replace https://gyde-matchbot.vercel.app with your actual
+  Vercel deployment URL if it differs.
+
+  Updates: edit gyde-matchbot.css / gyde-matchbot.js in this repo and
+  redeploy to Vercel — the embed picks up the new files automatically.
+  Bump the ?v= query string after each deploy to bust the browser cache.
+  ==========================================================================
 -->
+
+<link rel="stylesheet" href="https://gyde-matchbot.vercel.app/gyde-matchbot.css?v=1">
 
 <div class="gyde-matchbot" id="gydeMatchbot">
 
-  <!-- Progress Bar -->
   <div class="gyde-progress" id="gydeProgress">
     <div class="gyde-progress-step active" data-step="0"></div>
     <div class="gyde-progress-step" data-step="1"></div>
@@ -24,7 +25,6 @@
     <div class="gyde-progress-step" data-step="4"></div>
   </div>
 
-  <!-- Step 0: Loading -->
   <div class="gyde-step" id="gydeStepLoading">
     <div class="gyde-loading">
       <div class="gyde-spinner"></div>
@@ -32,14 +32,12 @@
     </div>
   </div>
 
-  <!-- Step 1: Category Selection -->
   <div class="gyde-step" id="gydeStep0">
     <h2 class="gyde-step-title">What type of expert are you looking for?</h2>
     <p class="gyde-step-subtitle">Select a category to get started</p>
     <div class="gyde-categories" id="gydeCategoryList"></div>
   </div>
 
-  <!-- Step 2: Skills Selection -->
   <div class="gyde-step" id="gydeStep1">
     <h2 class="gyde-step-title">What are you looking for more specifically?</h2>
     <p class="gyde-step-subtitle">Select all that apply, or click "Not sure" to see all experts in this category</p>
@@ -57,7 +55,6 @@
     </div>
   </div>
 
-  <!-- Step 3: Certifications/Platforms Selection -->
   <div class="gyde-step" id="gydeStep2">
     <h2 class="gyde-step-title">Any platform or tool preferences?</h2>
     <p class="gyde-step-subtitle">Select platforms your expert should know</p>
@@ -75,7 +72,6 @@
     </div>
   </div>
 
-  <!-- Step 4: Location -->
   <div class="gyde-step" id="gydeStep3">
     <h2 class="gyde-step-title">Do you need someone in a certain location, or is remote okay?</h2>
     <div class="gyde-location">
@@ -83,7 +79,6 @@
         <button class="gyde-location-btn" data-location="remote" onclick="GydeMatchbot.selectLocation('remote')">Remote</button>
         <button class="gyde-location-btn" data-location="state" onclick="GydeMatchbot.selectLocation('state')">State &#9662;</button>
       </div>
-
       <div class="gyde-location-detail" id="gydeStateSelect">
         <select class="gyde-select" id="gydeStateDropdown" onchange="GydeMatchbot.onStateChange()">
           <option value="">Select a state...</option>
@@ -96,7 +91,6 @@
     </div>
   </div>
 
-  <!-- Step 5: Contact Info -->
   <div class="gyde-step" id="gydeStep4">
     <h2 class="gyde-step-title">Almost there! How can we reach you?</h2>
     <div class="gyde-contact">
@@ -113,7 +107,6 @@
     </div>
   </div>
 
-  <!-- Submitting State -->
   <div class="gyde-step" id="gydeStepSubmitting">
     <div class="gyde-loading">
       <div class="gyde-spinner"></div>
@@ -121,33 +114,27 @@
     </div>
   </div>
 
-  <!-- Results -->
   <div class="gyde-step" id="gydeStepResults">
     <div class="gyde-results">
       <div class="gyde-results-header">
         <h2>We've got you covered!</h2>
         <p>Check out the profiles of the professionals below</p>
       </div>
-
       <div class="gyde-results-section-label">Top Matches</div>
       <div id="gydeTopMatches"></div>
-
       <div class="gyde-view-more" id="gydeViewMoreContainer" style="display: none;">
         <button class="gyde-view-more-btn" onclick="GydeMatchbot.showMore()">View More</button>
       </div>
-
       <div class="gyde-additional-results" id="gydeAdditionalResults">
         <div class="gyde-results-section-label">Additional Matches</div>
         <div id="gydeMoreMatches"></div>
       </div>
-
       <div class="gyde-start-over">
         <button class="gyde-start-over-btn" onclick="GydeMatchbot.reset()">Start a New Search</button>
       </div>
     </div>
   </div>
 
-  <!-- Error State -->
   <div class="gyde-step" id="gydeStepError">
     <div class="gyde-error">
       <p>Something went wrong. Please try again.</p>
@@ -156,6 +143,4 @@
   </div>
 </div>
 
-<script src="/gyde-matchbot.js"></script>
-</body>
-</html>
+<script src="https://gyde-matchbot.vercel.app/gyde-matchbot.js?v=1"></script>
