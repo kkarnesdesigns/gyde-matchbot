@@ -154,6 +154,7 @@
       container.innerHTML = '<p style="color: var(--gyde-text-light); font-size: 14px;">No specific skills listed for this category.</p>';
       state.skillsCatchAll = true;
       updateCatchAllBtn('skills');
+      updateNextBtn('skills', true);
       return;
     }
 
@@ -167,6 +168,7 @@
     });
 
     updateCatchAllBtn('skills');
+    updateNextBtn('skills');
   }
 
   function toggleSkill(skill, chipEl) {
@@ -183,6 +185,8 @@
       state.selectedSkills.push(skill);
       chipEl.classList.add('selected');
     }
+
+    updateNextBtn('skills');
   }
 
   // ========================================
@@ -198,6 +202,7 @@
       container.innerHTML = '<p style="color: var(--gyde-text-light); font-size: 14px;">No specific platforms listed for this category.</p>';
       state.certsCatchAll = true;
       updateCatchAllBtn('certifications');
+      updateNextBtn('certifications', true);
       return;
     }
 
@@ -211,6 +216,7 @@
     });
 
     updateCatchAllBtn('certifications');
+    updateNextBtn('certifications');
   }
 
   function toggleCert(cert, chipEl) {
@@ -227,6 +233,8 @@
       state.selectedCerts.push(cert);
       chipEl.classList.add('selected');
     }
+
+    updateNextBtn('certifications');
   }
 
   // ========================================
@@ -254,6 +262,15 @@
     if (!btn) return;
     const isActive = type === 'skills' ? state.skillsCatchAll : state.certsCatchAll;
     btn.classList.toggle('selected', isActive);
+  }
+
+  function updateNextBtn(type, forceEnable) {
+    const btn = document.getElementById(type === 'skills' ? 'gydeSkillNext' : 'gydeCertNext');
+    if (!btn) return;
+    const hasSelection = type === 'skills'
+      ? state.selectedSkills.length > 0
+      : state.selectedCerts.length > 0;
+    btn.disabled = !(forceEnable || hasSelection);
   }
 
   // ========================================
@@ -543,6 +560,8 @@
     if (pd) pd.value = '';
     document.getElementById('gydeSubmitBtn').disabled = true;
     document.getElementById('gydeLocationNext').disabled = true;
+    updateNextBtn('skills');
+    updateNextBtn('certifications');
     document.getElementById('gydeAdditionalResults').classList.remove('visible');
     document.getElementById('gydeProgress').style.display = 'flex';
 
