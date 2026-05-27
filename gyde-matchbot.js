@@ -422,6 +422,9 @@
     const records = Array.isArray(raw) ? raw : (raw && Array.isArray(raw.records) ? raw.records : []);
     const mapped = records.map(rec => {
       const f = (rec && rec.fields) ? rec.fields : rec || {};
+      const slug = (f['Slug'] || f.slug || '').toString().trim();
+      const rawProfileUrl = (f['Profile URL'] || f.profileUrl || '').toString().trim();
+      const profileUrl = rawProfileUrl || (slug ? `https://www.joingyde.com/experts/${slug}` : '#');
       return {
         name: f['Full name'] || f.name || '',
         title: f['Title'] || f.title || '',
@@ -430,7 +433,7 @@
         skills: f['Name (from Skills)'] || f.skills || [],
         certifications: f['Name (from Certifications)'] || f.certifications || [],
         about: f['Brief Description'] || f.about || '',
-        profileUrl: f['Profile URL'] || f.profileUrl || '#',
+        profileUrl,
         membershipPlan: f['Membership Plan'] || f.membershipPlan || '',
         aiSummary: f.aiSummary || ''
       };
