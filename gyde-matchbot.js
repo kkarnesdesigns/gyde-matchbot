@@ -251,6 +251,7 @@
 
   function updateCatchAllBtn(type) {
     const btn = document.getElementById(type === 'skills' ? 'gydeSkillCatchAll' : 'gydeCertCatchAll');
+    if (!btn) return;
     const isActive = type === 'skills' ? state.skillsCatchAll : state.certsCatchAll;
     btn.classList.toggle('selected', isActive);
   }

@@ -42,13 +42,10 @@
   <!-- Step 2: Skills Selection -->
   <div class="gyde-step" id="gydeStep1">
     <h2 class="gyde-step-title">What kind of work do you need help with?</h2>
-    <p class="gyde-step-subtitle">Select all that apply, or click "Not sure" to see all professionals in this category</p>
+    <p class="gyde-step-subtitle">Select all that apply</p>
     <div class="gyde-chips-container">
       <div class="gyde-section-label">Services</div>
       <div class="gyde-chips" id="gydeSkillChips"></div>
-      <div class="gyde-catch-all">
-        <button class="gyde-catch-all-btn" id="gydeSkillCatchAll" onclick="GydeMatchbot.toggleCatchAll('skills')">Not sure or open to suggestions</button>
-      </div>
     </div>
     <div class="gyde-nav">
       <button class="gyde-btn gyde-btn-back" onclick="GydeMatchbot.prevStep()">&larr; Back</button>
@@ -63,9 +60,6 @@
     <div class="gyde-chips-container">
       <div class="gyde-section-label">Platforms & Tools</div>
       <div class="gyde-chips" id="gydeCertChips"></div>
-      <div class="gyde-catch-all">
-        <button class="gyde-catch-all-btn" id="gydeCertCatchAll" onclick="GydeMatchbot.toggleCatchAll('certifications')">Not sure or open to suggestions</button>
-      </div>
     </div>
     <div class="gyde-nav">
       <button class="gyde-btn gyde-btn-back" onclick="GydeMatchbot.prevStep()">&larr; Back</button>
