@@ -424,7 +424,7 @@
       const f = (rec && rec.fields) ? rec.fields : rec || {};
       const slug = (f['Slug'] || f.slug || '').toString().trim();
       const rawProfileUrl = (f['Profile URL'] || f.profileUrl || '').toString().trim();
-      const profileUrl = rawProfileUrl || (slug ? `https://www.joingyde.com/experts/${slug}` : '#');
+      const profileUrl = rawProfileUrl || (slug ? `https://www.joingyde.com/expert/${slug}` : '#');
       return {
         name: f['Full name'] || f.name || '',
         title: f['Title'] || f.title || '',
