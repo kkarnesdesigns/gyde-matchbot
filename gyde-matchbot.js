@@ -247,14 +247,17 @@
         state.selectedSkills = [];
         document.querySelectorAll('#gydeSkillChips .gyde-chip').forEach(el => el.classList.remove('selected'));
       }
+      updateCatchAllBtn(type);
+      updateNextBtn('skills', state.skillsCatchAll);
     } else {
       state.certsCatchAll = !state.certsCatchAll;
       if (state.certsCatchAll) {
         state.selectedCerts = [];
         document.querySelectorAll('#gydeCertChips .gyde-chip').forEach(el => el.classList.remove('selected'));
       }
+      updateCatchAllBtn(type);
+      updateNextBtn('certifications', state.certsCatchAll);
     }
-    updateCatchAllBtn(type);
   }
 
   function updateCatchAllBtn(type) {

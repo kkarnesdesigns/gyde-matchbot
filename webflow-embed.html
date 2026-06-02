@@ -13,7 +13,7 @@
   ==========================================================================
 -->
 
-<link rel="stylesheet" href="https://gyde-matchbot.vercel.app/gyde-matchbot.css?v=10">
+<link rel="stylesheet" href="https://gyde-matchbot.vercel.app/gyde-matchbot.css?v=11">
 
 <div class="gyde-matchbot" id="gydeMatchbot">
 
@@ -53,10 +53,13 @@
 
   <div class="gyde-step" id="gydeStep2">
     <h2 class="gyde-step-title">Any platform preferences or requirements?</h2>
-    <p class="gyde-step-subtitle">Select platforms your professional should know</p>
+    <p class="gyde-step-subtitle">Select platforms your professional should know, or skip if it doesn't matter</p>
     <div class="gyde-chips-container">
       <div class="gyde-section-label">Platforms & Tools</div>
       <div class="gyde-chips" id="gydeCertChips"></div>
+      <div class="gyde-catch-all">
+        <button class="gyde-catch-all-btn" id="gydeCertCatchAll" onclick="GydeMatchbot.toggleCatchAll('certifications')">No platform preference</button>
+      </div>
     </div>
     <div class="gyde-nav">
       <button class="gyde-btn gyde-btn-back" onclick="GydeMatchbot.prevStep()">&larr; Back</button>
@@ -141,4 +144,4 @@
   </div>
 </div>
 
-<script defer src="https://gyde-matchbot.vercel.app/gyde-matchbot.js?v=10"></script>
+<script defer src="https://gyde-matchbot.vercel.app/gyde-matchbot.js?v=11"></script>
